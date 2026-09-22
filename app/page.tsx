@@ -392,7 +392,7 @@ export default function Home() {
         <section className="mb-6">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-white/80">
-              랜덤 토크 질문
+              랜덤 질문
             </h2>
 
             <div className="flex items-center gap-4">
@@ -424,7 +424,7 @@ export default function Home() {
                 </div>
 
                 <h2 className="mt-1 text-xl font-black sm:text-2xl">
-                  오늘의 랜덤 토크
+                  오늘의 랜덤 질문
                 </h2>
               </div>
 
@@ -490,7 +490,7 @@ export default function Home() {
                       송편을 하나 뽑아볼까요?
                     </p>
                     <p className="mt-2 text-sm text-white/35">
-                      버튼을 누르면 랜덤 토크 주제가 등장합니다.
+                      버튼을 누르면 랜덤 질문이 등장합니다.
                     </p>
                   </div>
                 )}
