@@ -212,6 +212,7 @@ export default function Home() {
   const [current, setCurrent] = useState<Question | null>(null);
   const [rolling, setRolling] = useState(false);
   const [history, setHistory] = useState<Question[]>([]);
+  const [usedQuestionIds, setUsedQuestionIds] = useState<number[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [currentTime, setCurrentTime] = useState("");
 
@@ -234,13 +235,19 @@ export default function Home() {
   }, []);
 
   const getAvailableQuestions = () => {
-    const usedIds = new Set(history.map((q) => q.id));
+    const usedIds = new Set(usedQuestionIds);
 
     const available = questions.filter(
       (question) => !usedIds.has(question.id)
     );
 
-    return available.length > 0 ? available : questions;
+    // 모든 질문을 한 번씩 뽑았다면 새로운 라운드 시작
+    if (available.length === 0) {
+      setUsedQuestionIds([]);
+      return questions;
+    }
+
+    return available;
   };
 
   const drawQuestion = () => {
@@ -274,6 +281,11 @@ export default function Home() {
       if (index >= fakeQuestions.length) {
         setTimeout(() => {
           setCurrent(target);
+
+          setUsedQuestionIds((prev) =>
+            prev.includes(target.id) ? prev : [...prev, target.id]
+          );
+
           setHistory((prev) => [
             target,
             ...prev.filter((q) => q.id !== target.id),
@@ -309,6 +321,7 @@ export default function Home() {
 
   const resetHistory = () => {
     setHistory([]);
+    setUsedQuestionIds([]);
     setCurrent(null);
   };
 
