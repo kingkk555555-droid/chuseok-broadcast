@@ -53,7 +53,7 @@ const questionTexts = [
   "방송이 끝난 뒤에도 아직 방송 중인 것 같은 착각을 해본 적 있나요?",
   "본인의 방송에 자막 하나만 계속 띄울 수 있다면 어떤 자막을 고르실 건가요?",
   "본인 방송에서 하나의 장면만 무한 반복해서 보여준다면 가장 웃길 것 같은 장면은 뭘까요?",
- " 방송을 켰는데 시청자들이 전부 본인의 말에 반대로 반응한다면, 얼마나 버틸 수 있을까요?",
+  " 방송을 켰는데 시청자들이 전부 본인의 말에 반대로 반응한다면, 얼마나 버틸 수 있을까요?",
   "연애할 때 연락 잘 되는 사람 vs 만나면 재밌는 사람, 하나만 고른다면?",
   "친해지고 싶은 사람이 먼저 다가오는 것과 내가 먼저 다가가는 것 중 뭐가 더 편하신가요?",
   "친한 친구와 하루 종일 붙어있기 vs 일주일에 한 번 만나도 편한 사이, 어느 쪽이 더 좋나요?",
@@ -80,7 +80,6 @@ const questionTexts = [
   "본인에게 “한 번만 과거로 돌아갈 수 있는 버튼”이 생긴다면 누를 것 같나요?",
   "하루 동안 본인의 생각이 자막으로 머리 위에 뜬다면 방송을 켤 수 있을까요?",
   "평생 하나의 계절만 살 수 있다면 봄·여름·가을·겨울 중 무엇",
-  "지금 가진 기억을 그대로 가지고 10살로 돌아가기 vs 지금 나이 그대로 10년 뒤로 가기",
   "잉친이들이 본인에게 가상의 주민등록증을 만들어준다면 직업란에 뭐라고 적을 것 같나요?",
   "본인이 무인도에 떨어졌는데 휴대폰 배터리 1%가 남아 있다면 마지막으로 뭘 할 건가요",
   "평생 한 가지 물건만 무한 복제할 수 있다면 뭘 복제하시겠어요?",
@@ -184,31 +183,137 @@ const questionTexts = [
   "본인의 닉네임을 딱 한번 다른 사람에게 선물할 수 있다면, 누구에게 주고 싶으신가요?",
 ];
 
+const schedules = [
+  { date: "09.23", title: "휴방" },
+  { date: "09.24", title: "추석연휴 기념방송 · 종겜동 합방" },
+  { date: "09.25", title: "추석연휴 기념방송" },
+  { date: "09.26", title: "추석연휴 기념방송 · 제이팝 라이브 월드컵" },
+  { date: "09.27", title: "<템빨> 1~2화 같이보기" },
+  { date: "09.28", title: "휴방" },
+  { date: "09.29", title: "초대석" },
+  { date: "09.30", title: "휴방" },
+];
+
 const questions: Question[] = questionTexts.map((question, index) => ({
   id: index + 1,
   emoji: ["🐰", "🎙️", "💭", "🤣", "🧠", "🎮", "📺", "🧐"][index % 8],
   question,
 }));
 
+function SongpyeonIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 120 90"
+      className={className}
+      aria-label="송편"
+      role="img"
+    >
+      <defs>
+        <linearGradient id="songpyeonPink" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#fff5f0" />
+          <stop offset="100%" stopColor="#f7c5c0" />
+        </linearGradient>
+
+        <linearGradient id="songpyeonGreen" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#f4ffe9" />
+          <stop offset="100%" stopColor="#b8dca8" />
+        </linearGradient>
+      </defs>
+
+      <g transform="translate(8 8)">
+        <path
+          d="M13 48C17 27 32 15 52 15C72 15 88 27 92 48C78 59 27 59 13 48Z"
+          fill="url(#songpyeonPink)"
+          stroke="#fff8f5"
+          strokeWidth="3"
+        />
+
+        <path
+          d="M13 48C29 57 76 58 92 48"
+          fill="none"
+          stroke="#dfaaa4"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+
+        <ellipse
+          cx="52"
+          cy="29"
+          rx="14"
+          ry="5"
+          fill="#ffffff"
+          opacity="0.4"
+        />
+      </g>
+
+      <g transform="translate(38 23) scale(.7)">
+        <path
+          d="M13 48C17 27 32 15 52 15C72 15 88 27 92 48C78 59 27 59 13 48Z"
+          fill="url(#songpyeonGreen)"
+          stroke="#f3ffe9"
+          strokeWidth="3"
+        />
+
+        <path
+          d="M13 48C29 57 76 58 92 48"
+          fill="none"
+          stroke="#98bf8b"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+
+        <ellipse
+          cx="52"
+          cy="29"
+          rx="14"
+          ry="5"
+          fill="#ffffff"
+          opacity="0.4"
+        />
+      </g>
+    </svg>
+  );
+}
+
 export default function Home() {
   const [current, setCurrent] = useState<Question | null>(null);
   const [history, setHistory] = useState<Question[]>([]);
   const [usedQuestionIds, setUsedQuestionIds] = useState<number[]>([]);
-  const [favorites, setFavorites] = useState<number[]>([]);
   const [currentTime, setCurrentTime] = useState("");
+  const [currentDate, setCurrentDate] = useState("");
+  const [timePeriod, setTimePeriod] = useState<
+    "dawn" | "day" | "evening" | "night"
+  >("night");
 
-  // 실제로 사용된 질문을 즉시 기억해서 빠른 연속 클릭에도 중복 방지
   const usedQuestionIdsRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     const updateTime = () => {
+      const now = new Date();
+      const hour = now.getHours();
+
       setCurrentTime(
-        new Date().toLocaleTimeString("ko-KR", {
+        now.toLocaleTimeString("ko-KR", {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
         })
       );
+      setCurrentDate(
+        `${String(now.getMonth() + 1).padStart(2, "0")}.${String(
+          now.getDate()
+        ).padStart(2, "0")}`
+      );
+
+      if (hour >= 6 && hour < 9) {
+        setTimePeriod("dawn");
+      } else if (hour >= 9 && hour < 18) {
+        setTimePeriod("day");
+      } else if (hour >= 18 && hour < 21) {
+        setTimePeriod("evening");
+      } else {
+        setTimePeriod("night");
+      }
     };
 
     updateTime();
@@ -225,7 +330,6 @@ export default function Home() {
       (question) => !usedQuestionIdsRef.current.has(question.id)
     );
 
-    // 모든 질문을 한 번씩 뽑았다면 새로운 라운드 시작
     if (available.length === 0) {
       usedQuestionIdsRef.current.clear();
       setUsedQuestionIds([]);
@@ -235,24 +339,13 @@ export default function Home() {
     const target =
       available[Math.floor(Math.random() * available.length)];
 
-    // 선택한 질문을 즉시 사용 처리
     usedQuestionIdsRef.current.add(target.id);
     setUsedQuestionIds(Array.from(usedQuestionIdsRef.current));
 
-    // 질문 즉시 표시
     setCurrent(target);
 
-    // 최근 질문 기록
     setHistory((prev) =>
       [target, ...prev.filter((q) => q.id !== target.id)].slice(0, 6)
-    );
-  };
-
-  const toggleFavorite = (id: number) => {
-    setFavorites((prev) =>
-      prev.includes(id)
-        ? prev.filter((favoriteId) => favoriteId !== id)
-        : [...prev, id]
     );
   };
 
@@ -263,84 +356,321 @@ export default function Home() {
     setCurrent(null);
   };
 
+  const theme =
+    timePeriod === "dawn"
+      ? {
+          page:
+            "bg-[linear-gradient(135deg,#554c72_0%,#8d7891_42%,#d6aa96_100%)]",
+          overlay:
+            "bg-[radial-gradient(circle_at_50%_0%,rgba(255,239,202,0.38),transparent_45%)]",
+          cloud: "bg-[#f1d9d0]/30",
+          cloud2: "bg-[#ead2d5]/25",
+          panel: "bg-[#5b526f]/35",
+          card: "bg-[#4b4562]/45",
+          inner: "bg-[#343149]/65",
+          text: "text-[#fff8ef]",
+          muted: "text-[#fff2e5]/60",
+          soft: "text-[#ffe9d9]/70",
+          accent: "text-[#ffe0c9]",
+          border: "border-[#ffe9d9]/20",
+          button:
+            "from-[#ffd6b8] to-[#f6b9ad] text-[#3b2630] shadow-[#ffd6b8]/20",
+          moon: "🌅",
+        }
+      : timePeriod === "day"
+        ? {
+            page:
+              "bg-[linear-gradient(135deg,#a8d8e8_0%,#d8e9d1_48%,#f5d9ad_100%)]",
+            overlay:
+              "bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,225,0.55),transparent_46%)]",
+            cloud: "bg-white/45",
+            cloud2: "bg-white/35",
+            panel: "bg-white/25",
+            card: "bg-white/30",
+            inner: "bg-[#456273]/35",
+            text: "text-[#25303a]",
+            muted: "text-[#314552]/65",
+            soft: "text-[#455c68]/75",
+            accent: "text-[#8a5260]",
+            border: "border-white/40",
+            button:
+              "from-[#f7c7a6] to-[#f4aeb3] text-[#3c2830] shadow-[#f3b6aa]/20",
+            moon: "☀️",
+          }
+        : timePeriod === "evening"
+          ? {
+              page:
+                "bg-[linear-gradient(135deg,#705c87_0%,#a16e83_45%,#e4a47d_100%)]",
+              overlay:
+                "bg-[radial-gradient(circle_at_70%_5%,rgba(255,220,170,0.38),transparent_42%)]",
+              cloud: "bg-[#443b60]/45",
+              cloud2: "bg-[#503c59]/40",
+              panel: "bg-[#403751]/35",
+              card: "bg-[#3f354d]/45",
+              inner: "bg-[#29253b]/70",
+              text: "text-[#fff5ed]",
+              muted: "text-[#ffece0]/60",
+              soft: "text-[#ffe4d2]/75",
+              accent: "text-[#ffd3c0]",
+              border: "border-[#ffe5d8]/20",
+              button:
+                "from-[#f6c3ad] to-[#eaa5a7] text-[#3b2730] shadow-[#f2b2a8]/20",
+              moon: "🌇",
+            }
+          : {
+              page: "bg-[#11152b]",
+              overlay:
+                "bg-[radial-gradient(circle_at_50%_0%,rgba(255,242,189,0.12),transparent_42%)]",
+              cloud: "bg-[#252b50]/80",
+              cloud2: "bg-[#252b50]/70",
+              panel: "bg-[#191d38]/90",
+              card: "bg-white/[0.055]",
+              inner: "bg-[#0c1022]/80",
+              text: "text-white",
+              muted: "text-white/55",
+              soft: "text-white/75",
+              accent: "text-pink-200",
+              border: "border-white/10",
+              button:
+                "from-pink-300 to-rose-200 text-[#25162d] shadow-pink-300/10",
+              moon: "🌕",
+            };
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#11152b] text-white">
-      {/* 배경 별 */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute left-[8%] top-[12%] text-xs text-white/50">
-          ✦
-        </div>
-        <div className="absolute left-[20%] top-[25%] text-sm text-white/40">
-          ✦
-        </div>
-        <div className="absolute right-[17%] top-[18%] text-xs text-white/50">
-          ✦
-        </div>
-        <div className="absolute right-[8%] top-[38%] text-sm text-white/40">
-          ✦
-        </div>
-        <div className="absolute left-[5%] top-[55%] text-xs text-white/30">
-          ✦
-        </div>
+    <main
+      className={`min-h-screen overflow-hidden ${theme.page} ${theme.text} transition-colors duration-[1800ms]`}
+    >
+      <div
+        className={`pointer-events-none fixed inset-0 overflow-hidden transition-all duration-[1800ms] ${theme.overlay}`}
+      >
+        {timePeriod === "night" ? (
+          <>
+            <div className="absolute left-[8%] top-[12%] text-xs text-white/50">
+              ✦
+            </div>
 
-        {/* 달빛 */}
-        <div className="absolute left-1/2 top-[-180px] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#fff2bd]/10 blur-3xl" />
+            <div className="absolute left-[20%] top-[25%] text-sm text-white/40">
+              ✦
+            </div>
 
-        {/* 구름 */}
-        <div className="absolute -bottom-12 -left-10 h-32 w-96 rounded-full bg-[#252b50]/80 blur-sm" />
-        <div className="absolute -bottom-16 right-[-80px] h-40 w-[500px] rounded-full bg-[#252b50]/70 blur-sm" />
+            <div className="absolute right-[17%] top-[18%] text-xs text-white/50">
+              ✦
+            </div>
+
+            <div className="absolute right-[8%] top-[38%] text-sm text-white/40">
+              ✦
+            </div>
+
+            <div className="absolute left-[5%] top-[55%] text-xs text-white/30">
+              ✦
+            </div>
+
+            <div className="absolute left-1/2 top-[-180px] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#fff2bd]/10 blur-3xl" />
+          </>
+        ) : (
+          <>
+            <div className="absolute left-[10%] top-[10%] text-2xl opacity-40">
+              ☁️
+            </div>
+
+            <div className="absolute right-[15%] top-[18%] text-3xl opacity-35">
+              ☁️
+            </div>
+
+            <div className="absolute left-[42%] top-[7%] text-xl opacity-30">
+              ✨
+            </div>
+          </>
+        )}
+
+        <div
+          className={`absolute -bottom-12 -left-10 h-32 w-96 rounded-full blur-sm transition-colors duration-[1800ms] ${theme.cloud}`}
+        />
+
+        <div
+          className={`absolute -bottom-16 right-[-80px] h-40 w-[500px] rounded-full blur-sm transition-colors duration-[1800ms] ${theme.cloud2}`}
+        />
+
+        <div className="absolute right-[5%] top-[8%] hidden text-7xl opacity-20 sm:block">
+          {theme.moon}
+        </div>
       </div>
 
       <div className="relative mx-auto min-h-screen max-w-6xl px-5 py-8 sm:px-8">
-        {/* Header */}
-        <header className="mb-8 flex items-center justify-between">
-          <div>
-            <div className="mb-2 text-sm font-medium tracking-[0.25em] text-pink-200/80">
+        <header className="mb-8 flex items-start justify-between gap-6">
+          <div className="min-w-0 flex-1">
+            <div
+              className={`mb-2 text-sm font-medium tracking-[0.25em] transition-colors duration-[1800ms] ${theme.accent}`}
+            >
               2026 CHUSEOK SPECIAL
             </div>
 
             <h1 className="text-3xl font-black tracking-tight sm:text-5xl">
               😺 우정잉
-              <span className="ml-2 text-pink-200">
+              <span
+                className={`ml-2 transition-colors duration-[1800ms] ${theme.accent}`}
+              >
                 랜덤토크 질문 뽑기
               </span>
             </h1>
 
-            <p className="mt-3 text-sm text-white/55 sm:text-base">
+            <p
+              className={`mt-3 text-sm transition-colors duration-[1800ms] sm:text-base ${theme.muted}`}
+            >
               방송하다 할 말이 없을 때, 송편 하나 뽑아보세요 🌕
             </p>
+
+            <section
+              className={`mt-5 rounded-[28px] border p-5 backdrop-blur-lg transition-all duration-[1800ms] ${theme.border} ${theme.panel}`}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h3 className="font-black">📝 최근 뽑은 주제</h3>
+
+                  <p
+                    className={`mt-1 text-xs transition-colors duration-[1800ms] ${theme.muted}`}
+                  >
+                    같은 주제가 연속으로 나오지 않아요.
+                  </p>
+                </div>
+
+                <div
+                  className={`text-xs transition-colors duration-[1800ms] ${theme.muted}`}
+                >
+                  {history.length} / 6
+                </div>
+              </div>
+
+              {history.length === 0 ? (
+                <div
+                  className={`rounded-2xl border border-dashed py-8 text-center text-sm transition-colors duration-[1800ms] ${theme.border} ${theme.muted}`}
+                >
+                  아직 뽑은 주제가 없습니다.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {history.map((item, index) => (
+                    <button
+                      key={`${item.id}-${index}`}
+                      onClick={() => setCurrent(item)}
+                      className={`group flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.10] text-sm">
+                        {item.emoji}
+                      </span>
+
+                      <div className="min-w-0">
+                        <p
+                          className={`truncate text-sm font-medium transition-colors duration-[1800ms] ${theme.soft}`}
+                        >
+                          {item.question}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
           </div>
 
-          <div className="hidden text-right sm:block">
-            <div className="text-6xl drop-shadow-[0_0_30px_rgba(255,230,170,0.25)]">
-              🌕
+          <div className="hidden w-[300px] shrink-0 text-right sm:block">
+            <div
+              className={`text-6xl transition-all duration-[1800ms] ${
+                timePeriod === "night"
+                  ? "drop-shadow-[0_0_30px_rgba(255,230,170,0.25)]"
+                  : "drop-shadow-[0_0_30px_rgba(255,220,170,0.35)]"
+              }`}
+            >
+              {timePeriod === "night" ? "🌕" : theme.moon}
             </div>
 
-            <div className="mt-1 text-xs text-white/40">
-              즐거운 한가위
+            <div
+              className={`mt-1 text-xs transition-colors duration-[1800ms] ${theme.muted}`}
+            >
+              {timePeriod === "day"
+                ? "따뜻한 한가위 낮"
+                : timePeriod === "evening"
+                  ? "노을빛 한가위"
+                  : timePeriod === "dawn"
+                    ? "한가위 아침"
+                    : "즐거운 한가위"}
             </div>
 
-            <div className="mt-2 text-xs font-medium text-pink-200/50">
+            <div
+              className={`mt-2 text-xs font-medium transition-colors duration-[1800ms] ${theme.accent}`}
+            >
               {currentTime}
+            </div>
+
+            <div
+              className={`mt-4 overflow-hidden rounded-2xl border text-left shadow-xl shadow-black/10 backdrop-blur-xl transition-all duration-[1800ms] ${theme.border} ${theme.panel}`}
+            >
+              <div className="border-b border-white/10 bg-white/[0.08] px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">📅</span>
+
+                  <span className="text-sm font-black">
+                    방송 일정
+                  </span>
+                </div>
+
+                <div
+                  className={`mt-1 text-[10px] font-medium tracking-[0.08em] transition-colors duration-[1800ms] ${theme.accent}`}
+                >
+                  2026.09.23 — 09.30
+                </div>
+              </div>
+
+              <div className="divide-y divide-white/[0.08]">
+                {schedules.map((schedule) => (
+                  <div
+                    key={schedule.date}
+                    className={`flex items-start gap-3 rounded-xl px-4 py-2.5 transition-all duration-[1800ms] ${
+                      currentDate === schedule.date
+                        ? "bg-gradient-to-r from-pink-400/25 via-purple-400/15 to-transparent ring-1 ring-pink-300/20"
+                        : ""
+                    }`}
+                  >
+                    <span
+                      className={`w-[42px] shrink-0 pt-0.5 text-xs font-black transition-colors duration-[1800ms] ${theme.accent}`}
+                    >
+                      {schedule.date}
+                    </span>
+
+                    <span
+                      className={`text-xs font-bold leading-relaxed ${
+                        schedule.title === "휴방"
+                          ? theme.muted
+                          : theme.soft
+                      }`}
+                    >
+                      {schedule.title}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </header>
 
-        {/* 상단 정보 */}
         <section className="mb-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-white/80">
+            <h2
+              className={`text-sm font-bold transition-colors duration-[1800ms] ${theme.soft}`}
+            >
               랜덤 토크 질문
             </h2>
 
             <div className="flex items-center gap-4">
-              <span className="text-xs text-white/25">
+              <span
+                className={`text-xs transition-colors duration-[1800ms] ${theme.muted}`}
+              >
                 총 {questions.length}개
               </span>
 
               <button
                 onClick={resetHistory}
-                className="text-xs text-white/35 transition hover:text-white/70"
+                className={`text-xs transition-colors duration-[1800ms] ${theme.muted}`}
               >
                 기록 초기화
               </button>
@@ -348,16 +678,19 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Main card */}
-        <section className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.055] p-4 shadow-2xl backdrop-blur-xl sm:p-7">
-          {/* 카드 장식 */}
+        <section
+          className={`relative overflow-hidden rounded-[32px] border p-4 shadow-2xl backdrop-blur-xl transition-all duration-[1800ms] sm:p-7 ${theme.border} ${theme.card}`}
+        >
           <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-pink-300/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-yellow-200/5 blur-3xl" />
+
+          <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-yellow-200/10 blur-3xl" />
 
           <div className="relative">
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <div className="text-xs font-bold tracking-[0.2em] text-pink-200/60">
+                <div
+                  className={`text-xs font-bold tracking-[0.2em] transition-colors duration-[1800ms] ${theme.accent}`}
+                >
                   TODAY'S TALK
                 </div>
 
@@ -366,52 +699,66 @@ export default function Home() {
                 </h2>
               </div>
 
-              <div className="text-3xl">🥮</div>
+              <SongpyeonIcon className="h-14 w-20 drop-shadow-[0_4px_12px_rgba(255,210,210,0.18)]" />
             </div>
 
-            {/* 질문 영역 */}
-            <div className="relative flex min-h-[310px] items-center justify-center overflow-hidden rounded-[24px] border border-white/10 bg-[#0c1022]/80 px-5 py-8 sm:min-h-[340px]">
-              {/* 중앙 강조 영역 */}
-              <div className="pointer-events-none absolute left-0 right-0 top-1/2 z-10 h-[118px] -translate-y-1/2 border-y border-pink-200/15 bg-pink-200/[0.025]" />
+            <div
+              className={`relative flex min-h-[310px] items-center justify-center overflow-hidden rounded-[24px] border px-5 py-8 transition-all duration-[1800ms] sm:min-h-[340px] ${theme.border} ${theme.inner}`}
+            >
+              <div
+                className={`pointer-events-none absolute left-0 right-0 top-1/2 z-10 h-[118px] -translate-y-1/2 border-y bg-pink-200/[0.025] transition-colors duration-[1800ms] ${theme.border}`}
+              />
 
-              {/* 위/아래 fade */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-24 bg-gradient-to-b from-[#0c1022] to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-[#0c1022] to-transparent" />
+              <div
+                className={`pointer-events-none absolute inset-x-0 top-0 z-20 h-24 bg-gradient-to-b from-transparent to-transparent transition-all duration-[1800ms] ${
+                  timePeriod === "night"
+                    ? "from-[#0c1022]"
+                    : "from-black/10"
+                }`}
+              />
 
-              <div className="relative z-30 flex w-full max-w-3xl items-center justify-center text-center">
+              <div
+                className={`pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-transparent to-transparent transition-all duration-[1800ms] ${
+                  timePeriod === "night"
+                    ? "from-[#0c1022]"
+                    : "from-black/10"
+                }`}
+              />
+
+              <div className="relative z-30 flex w-full max-w-3xl -translate-y-3 items-center justify-center text-center">
                 {current ? (
                   <div
                     key={current.id}
                     className="animate-[questionAppear_0.45s_ease-out]"
                   >
-                    <div className="mb-5 flex items-center justify-center gap-2">
-                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-white/50">
-                        {current.emoji} RANDOM TALK
+                    {/* RANDOM TALK */}
+                    <div className="mb-5 flex items-center justify-center">
+                      <span className="inline-flex h-7 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/[0.08] px-2.5 leading-none">
+                        <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[11px] leading-none">
+                          {current.emoji}
+                        </span>
+
+                        <span className="flex h-4 items-center whitespace-nowrap text-[10px] font-bold leading-none">
+                          RANDOM TALK
+                        </span>
                       </span>
                     </div>
 
-                    <p className="text-2xl font-black leading-[1.45] tracking-tight text-white sm:text-4xl">
+                    <p className="text-2xl font-black leading-[1.45] tracking-tight sm:text-4xl">
                       {current.question}
                     </p>
-
-                    <button
-                      onClick={() => toggleFavorite(current.id)}
-                      className="mt-7 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-bold text-white/50 transition hover:bg-white/[0.08] hover:text-white"
-                    >
-                      {favorites.includes(current.id)
-                        ? "★ 저장됨"
-                        : "☆ 이 주제 저장"}
-                    </button>
                   </div>
                 ) : (
                   <div className="py-12 text-center">
-                    <div className="mb-5 text-6xl">🐇</div>
+                    <SongpyeonIcon className="mx-auto mb-4 h-24 w-32 drop-shadow-[0_8px_18px_rgba(255,210,210,0.16)]" />
 
-                    <p className="text-xl font-bold text-white/75 sm:text-2xl">
+                    <p className="text-xl font-bold sm:text-2xl">
                       송편을 하나 뽑아볼까요?
                     </p>
 
-                    <p className="mt-2 text-sm text-white/35">
+                    <p
+                      className={`mt-2 text-sm transition-colors duration-[1800ms] ${theme.muted}`}
+                    >
                       버튼을 누르면 랜덤 토크 주제가 등장합니다.
                     </p>
                   </div>
@@ -419,14 +766,13 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Draw button */}
             <div className="mt-5 flex justify-center">
               <button
                 onClick={drawQuestion}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-300 to-rose-200 px-9 py-4 font-black text-[#25162d] shadow-lg shadow-pink-300/10 transition-all hover:-translate-y-0.5 hover:shadow-pink-300/20 active:translate-y-0"
+                className={`group relative overflow-hidden rounded-2xl bg-gradient-to-r px-9 py-4 font-black shadow-lg transition-all duration-[1800ms] hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  <span>🥮</span>
+                  <SongpyeonIcon className="h-7 w-8" />
                   송편 하나 뽑기
                 </span>
 
@@ -436,96 +782,25 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 하단 정보 */}
-        <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_340px]">
-          {/* 최근 질문 */}
-          <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 backdrop-blur-lg">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h3 className="font-black">📝 최근 뽑은 주제</h3>
-
-                <p className="mt-1 text-xs text-white/35">
-                  같은 주제가 연속으로 나오지 않아요.
-                </p>
-              </div>
-
-              <div className="text-xs text-white/30">
-                {history.length} / 6
-              </div>
-            </div>
-
-            {history.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/10 py-10 text-center text-sm text-white/25">
-                아직 뽑은 주제가 없습니다.
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {history.map((item, index) => (
-                  <button
-                    key={`${item.id}-${index}`}
-                    onClick={() => setCurrent(item)}
-                    className="group flex w-full items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.025] p-3 text-left transition hover:bg-white/[0.07]"
-                  >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-sm">
-                      {item.emoji}
-                    </span>
-
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-white/60 group-hover:text-white">
-                        {item.question}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* 저장한 주제 */}
-          <section className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5 backdrop-blur-lg">
-            <h3 className="font-black">⭐ 저장한 주제</h3>
-
-            <p className="mt-1 text-xs text-white/35">
-              마음에 드는 질문을 저장해두세요.
-            </p>
-
-            <div className="mt-4">
-              {favorites.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-white/10 py-10 text-center text-sm text-white/25">
-                  아직 저장한 주제가 없습니다.
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {questions
-                    .filter((q) => favorites.includes(q.id))
-                    .slice(0, 5)
-                    .map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => setCurrent(item)}
-                        className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.025] p-3 text-left text-sm text-white/55 transition hover:bg-white/[0.07] hover:text-white"
-                      >
-                        <span className="mr-2">{item.emoji}</span>
-                        {item.question}
-                      </button>
-                    ))}
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
-
-        {/* Footer */}
         <footer className="pb-5 pt-10 text-center">
-          <div className="mb-2 text-2xl">🌕 🐇 🥮</div>
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <span className="text-2xl">
+              {timePeriod === "night" ? "🌕" : theme.moon}
+            </span>
 
-          <p className="text-xs text-white/25">
+            <SongpyeonIcon className="h-10 w-14" />
+
+            <span className="text-2xl">🐇</span>
+          </div>
+
+          <p
+            className={`text-xs transition-colors duration-[1800ms] ${theme.muted}`}
+          >
             우정잉 랜덤토크 질문 뽑기 · 즐거운 한가위 보내세요
           </p>
         </footer>
       </div>
 
-      {/* Animations */}
       <style jsx global>{`
         @keyframes questionAppear {
           0% {
