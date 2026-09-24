@@ -426,11 +426,17 @@ export default function Home() {
   const [highLowLoseStreak, setHighLowLoseStreak] =
     useState(0);
 
+  const [streakCelebration, setStreakCelebration] =
+    useState<number | null>(null);
+
   const usedQuestionIdsRef =
     useRef<Set<number>>(new Set());
 
   const raceTimerRef =
     useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const streakCelebrationTimerRef =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const viewedPatchVersion =
@@ -447,6 +453,12 @@ export default function Home() {
     return () => {
       if (raceTimerRef.current) {
         clearInterval(raceTimerRef.current);
+      }
+
+      if (streakCelebrationTimerRef.current) {
+        clearTimeout(
+          streakCelebrationTimerRef.current
+        );
       }
     };
   }, []);
@@ -618,6 +630,14 @@ export default function Home() {
 
     setHighLowWinStreak(0);
     setHighLowLoseStreak(0);
+    setStreakCelebration(null);
+
+    if (streakCelebrationTimerRef.current) {
+      clearTimeout(
+        streakCelebrationTimerRef.current
+      );
+      streakCelebrationTimerRef.current = null;
+    }
   };
 
   const calculateHighLowProbability = () => {
@@ -725,17 +745,45 @@ export default function Home() {
     }
 
     if (isCorrect) {
-      setHighLowWinStreak(
-        (prev) => prev + 1
-      );
+      const nextWinStreak =
+        highLowWinStreak + 1;
 
+      setHighLowWinStreak(nextWinStreak);
       setHighLowLoseStreak(0);
+
+      if (
+        nextWinStreak >= 5 &&
+        nextWinStreak % 5 === 0
+      ) {
+        setStreakCelebration(nextWinStreak);
+
+        if (streakCelebrationTimerRef.current) {
+          clearTimeout(
+            streakCelebrationTimerRef.current
+          );
+        }
+
+        streakCelebrationTimerRef.current =
+          setTimeout(() => {
+            setStreakCelebration(null);
+            streakCelebrationTimerRef.current = null;
+          }, 3000);
+      }
     } else {
       setHighLowLoseStreak(
         (prev) => prev + 1
       );
 
       setHighLowWinStreak(0);
+
+      setStreakCelebration(null);
+
+      if (streakCelebrationTimerRef.current) {
+        clearTimeout(
+          streakCelebrationTimerRef.current
+        );
+        streakCelebrationTimerRef.current = null;
+      }
     }
 
     setCurrentCard(nextCard);
@@ -935,6 +983,53 @@ export default function Home() {
             >
               확인
             </button>
+          </div>
+        </div>
+      )}
+
+      {streakCelebration !== null && (
+        <div className="pointer-events-none fixed inset-0 z-[120] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 animate-[streakFlash_0.8s_ease-out] bg-pink-300/15 backdrop-blur-[2px]" />
+
+          <div className="absolute inset-0 overflow-hidden">
+            {Array.from({ length: 35 }).map((_, index) => (
+              <span
+                key={index}
+                className="absolute top-[-30px] text-2xl animate-[confettiFall_2.4s_ease-out_forwards]"
+                style={{
+                  left: `${(index * 37) % 100}%`,
+                  animationDelay: `${(index % 10) * 0.06}s`,
+                }}
+              >
+                {["✨", "🎉", "💥", "⭐", "🔥"][index % 5]}
+              </span>
+            ))}
+          </div>
+
+          <div className="relative z-10 text-center animate-[streakPop_0.65s_cubic-bezier(0.17,0.89,0.32,1.28)]">
+            <div className="mb-3 text-5xl sm:text-7xl">
+              🔥
+            </div>
+
+            <div className="text-2xl font-black tracking-[0.15em] text-pink-100 drop-shadow-[0_0_12px_rgba(255,105,180,0.9)] sm:text-4xl">
+              {streakCelebration}연승
+            </div>
+
+            <div className="mt-3 text-4xl font-black text-white drop-shadow-[0_0_18px_rgba(255,255,255,0.8)] sm:text-6xl">
+              STREAK!
+            </div>
+
+            <div className="mt-4 text-sm font-bold text-white/80 sm:text-base">
+              {streakCelebration === 10
+                ? "10연승 달성!"
+                : streakCelebration === 20
+                  ? "20연승 돌파!"
+                  : streakCelebration === 30
+                    ? "30연승 돌파!"
+                    : streakCelebration >= 50
+                      ? "LEGENDARY STREAK"
+                      : "아직도 안 멈춘다 🔥"}
+            </div>
           </div>
         </div>
       )}
@@ -1289,9 +1384,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 미니게임 2종 */}
         <section className="mt-6 grid gap-5 sm:grid-cols-2">
-          {/* 미니잉마 */}
           <div
             className={`rounded-[28px] border p-5 backdrop-blur-xl transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
           >
@@ -1447,7 +1540,6 @@ export default function Home() {
             </button>
           </div>
 
-          {/* 하잉로우 */}
           <div
             className={`rounded-[28px] border p-5 backdrop-blur-xl transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
           >
@@ -1467,7 +1559,7 @@ export default function Home() {
               >
                 공개된 카드보다 다음 카드가 높을지 낮을지 맞혀보세요.
                 <br />
-                실제 52장 카드 덱을 사용하며, 사용한 카드는 다시 나오지 않습니다.
+                실제 52장 카드 덱을 사용하며, 사용한 카드는 다시 나오지 않습니다.(5연승시 임팩트 발생)
               </p>
             </div>
 
@@ -1659,6 +1751,55 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
+        @keyframes streakPop {
+          0% {
+            opacity: 0;
+            transform: scale(0.25) rotate(-8deg);
+            filter: blur(8px);
+          }
+
+          60% {
+            opacity: 1;
+            transform: scale(1.12) rotate(2deg);
+            filter: blur(0);
+          }
+
+          100% {
+            opacity: 1;
+            transform: scale(1) rotate(0);
+          }
+        }
+
+        @keyframes streakFlash {
+          0% {
+            opacity: 0;
+          }
+
+          20% {
+            opacity: 1;
+          }
+
+          100% {
+            opacity: 0;
+          }
+        }
+
+        @keyframes confettiFall {
+          0% {
+            transform: translateY(-40px) rotate(0deg);
+            opacity: 0;
+          }
+
+          10% {
+            opacity: 1;
+          }
+
+          100% {
+            transform: translateY(105vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+
         @keyframes questionAppear {
           0% {
             opacity: 0;
