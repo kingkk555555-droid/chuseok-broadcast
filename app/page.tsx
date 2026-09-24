@@ -310,7 +310,7 @@ const PATCH_NOTES = [
   "질문 표시 방식 개선",
 ];
 
-type RaceAnimal = "토끼" | "거북이" | "고양이";
+type RaceAnimal = "토끼" | "거북이" | "고양이" | "돼지";
 
 type RacePositions = Record<RaceAnimal, number>;
 
@@ -318,18 +318,21 @@ const RACE_ANIMALS: RaceAnimal[] = [
   "토끼",
   "거북이",
   "고양이",
+  "돼지",
 ];
 
 const RACE_EMOJIS: Record<RaceAnimal, string> = {
   토끼: "🐇",
   거북이: "🐢",
   고양이: "🐱",
+  돼지: "🐷",
 };
 
 const RACE_COLORS: Record<RaceAnimal, string> = {
-  토끼: "bg-pink-300/20",
-  거북이: "bg-green-300/20",
-  고양이: "bg-yellow-300/20",
+  토끼: "bg-pink-500",
+  거북이: "bg-green-500",
+  고양이: "bg-yellow-400",
+  돼지: "bg-red-500",
 };
 
 export default function Home() {
@@ -360,10 +363,14 @@ export default function Home() {
       토끼: 0,
       거북이: 0,
       고양이: 0,
+      돼지: 0,
     });
 
   const [raceWinner, setRaceWinner] =
     useState<RaceAnimal | null>(null);
+
+  const [raceResults, setRaceResults] =
+    useState<RaceAnimal[]>([]);
 
   const [isRacing, setIsRacing] =
     useState(false);
@@ -515,10 +522,12 @@ export default function Home() {
       토끼: 0,
       거북이: 0,
       고양이: 0,
+      돼지: 0,
     };
 
     setRacePositions(startPositions);
     setRaceWinner(null);
+    setRaceResults([]);
     setIsRacing(true);
 
     raceTimerRef.current = setInterval(() => {
@@ -538,32 +547,45 @@ export default function Home() {
             prev.고양이 +
             Math.floor(Math.random() * 6) +
             1,
+
+          돼지:
+            prev.돼지 +
+            Math.floor(Math.random() * 6) +
+            1,
         };
 
-        const finishedAnimals =
-          RACE_ANIMALS.filter(
-            (animal) => next[animal] >= 100
+        setRaceResults((prevResults) => {
+          const newlyFinished = RACE_ANIMALS.filter(
+            (animal) =>
+              next[animal] >= 100 &&
+              !prevResults.includes(animal)
           );
 
-        if (finishedAnimals.length > 0) {
-          const winner =
-            finishedAnimals[
-              Math.floor(
-                Math.random() *
-                  finishedAnimals.length
-              )
-            ];
-
-          next[winner] = 100;
-
-          if (raceTimerRef.current) {
-            clearInterval(raceTimerRef.current);
-            raceTimerRef.current = null;
+          if (newlyFinished.length === 0) {
+            return prevResults;
           }
 
-          setRaceWinner(winner);
-          setIsRacing(false);
-        }
+          newlyFinished.forEach((animal) => {
+            next[animal] = 100;
+          });
+
+          const mergedResults = [
+            ...prevResults,
+            ...newlyFinished,
+          ];
+
+          if (mergedResults.length === RACE_ANIMALS.length) {
+            if (raceTimerRef.current) {
+              clearInterval(raceTimerRef.current);
+              raceTimerRef.current = null;
+            }
+
+            setRaceWinner(mergedResults[0]);
+            setIsRacing(false);
+          }
+
+          return mergedResults;
+        });
 
         return next;
       });
@@ -1251,13 +1273,13 @@ export default function Home() {
               <p
                 className={`mt-1 text-xs leading-relaxed ${theme.muted}`}
               >
-                토끼, 거북이, 고양이 중 하나를 선택하세요.
+                토끼, 거북이, 고양이, 돼지 중 하나를 선택하세요.
                 <br />
                 세 동물은 같은 조건에서 매 순간 랜덤으로 달립니다.
               </p>
             </div>
 
-            <div className="mb-4 grid grid-cols-3 gap-2">
+            <div className="mb-4 grid grid-cols-4 gap-2">
               {RACE_ANIMALS.map((animal) => {
                 const isSelected =
                   selectedAnimal === animal;
@@ -1342,7 +1364,7 @@ export default function Home() {
                       </span>
                     </div>
 
-                    <div className="h-3 overflow-hidden rounded-full bg-white/[0.08]">
+                    <div className="h-3 overflow-hidden rounded-full bg-black/35 ring-1 ring-white/15">
                       <div
                         className={`h-full rounded-full transition-all duration-150 ${RACE_COLORS[animal]}`}
                         style={{
@@ -1357,22 +1379,40 @@ export default function Home() {
                 ))}
               </div>
 
-              {raceWinner && (
+              {raceResults.length > 0 && (
                 <div
-                  className={`mt-4 rounded-2xl border p-3 text-center ${theme.border} bg-white/[0.06]`}
+                  className={`mt-4 rounded-2xl border p-4 ${theme.border} bg-white/[0.06]`}
                 >
-                  <div className="text-sm font-black">
-                    🏆 {RACE_EMOJIS[raceWinner]}{" "}
-                    {raceWinner} 승리!
+                  <div className="mb-3 text-center text-sm font-black">
+                    🏁 경기 결과
                   </div>
 
-                  <div
-                    className={`mt-1 text-xs ${theme.muted}`}
-                  >
-                    {selectedAnimal === raceWinner
-                      ? "선택한 동물이 1등했습니다!"
-                      : `선택한 ${RACE_EMOJIS[selectedAnimal]} ${selectedAnimal}은(는) 아쉽게도 패배했습니다.`}
+                  <div className="space-y-2">
+                    {raceResults.map((animal, index) => (
+                      <div
+                        key={animal}
+                        className="flex items-center justify-between rounded-xl bg-white/[0.05] px-3 py-2 text-sm font-bold"
+                      >
+                        <span>
+                          {["🥇", "🥈", "🥉", "🏅"][index]}{" "}
+                          {index + 1}등
+                        </span>
+                        <span>
+                          {RACE_EMOJIS[animal]} {animal}
+                        </span>
+                      </div>
+                    ))}
                   </div>
+
+                  {raceResults.length === RACE_ANIMALS.length && raceWinner && (
+                    <div
+                      className={`mt-3 text-center text-xs ${theme.muted}`}
+                    >
+                      {selectedAnimal === raceWinner
+                        ? "선택한 동물이 1등했습니다!"
+                        : `선택한 ${RACE_EMOJIS[selectedAnimal]} ${selectedAnimal}은(는) 아쉽게도 패배했습니다.`}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
