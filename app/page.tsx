@@ -309,27 +309,27 @@ const PATCH_NOTES = [
   "질문 표시 방식 개선",
 ];
 
-type RaceAnimal = "토끼" | "거북이" | "고양이" | "돼지";
+type RaceAnimal = "토끼" | "닭" | "고양이" | "돼지";
 
 type RacePositions = Record<RaceAnimal, number>;
 
 const RACE_ANIMALS: RaceAnimal[] = [
   "토끼",
-  "거북이",
+  "닭",
   "고양이",
   "돼지",
 ];
 
 const RACE_EMOJIS: Record<RaceAnimal, string> = {
   토끼: "🐇",
-  거북이: "🐢",
+  닭: "🐔",
   고양이: "🐱",
   돼지: "🐷",
 };
 
 const RACE_COLORS: Record<RaceAnimal, string> = {
   토끼: "bg-pink-500",
-  거북이: "bg-green-500",
+  닭: "bg-green-500",
   고양이: "bg-yellow-400",
   돼지: "bg-red-500",
 };
@@ -360,7 +360,7 @@ export default function Home() {
   const [racePositions, setRacePositions] =
     useState<RacePositions>({
       토끼: 0,
-      거북이: 0,
+      닭: 0,
       고양이: 0,
       돼지: 0,
     });
@@ -519,7 +519,7 @@ export default function Home() {
 
     const startPositions: RacePositions = {
       토끼: 0,
-      거북이: 0,
+      닭: 0,
       고양이: 0,
       돼지: 0,
     };
@@ -537,8 +537,8 @@ export default function Home() {
             Math.floor(Math.random() * 6) +
             1,
 
-          거북이:
-            prev.거북이 +
+          닭:
+            prev.닭 +
             Math.floor(Math.random() * 6) +
             1,
 
@@ -729,7 +729,8 @@ export default function Home() {
               "border-white/40",
             button:
               "from-[#f7c7a6] to-[#f4aeb3] text-[#3c2830] shadow-[#f3b6aa]/20",
-            moon: "☀️",
+            moon:
+              "☀️",
           }
         : timePeriod === "evening"
           ? {
@@ -759,7 +760,8 @@ export default function Home() {
                 "border-[#ffe5d8]/20",
               button:
                 "from-[#f6c3ad] to-[#eaa5a7] text-[#3b2730] shadow-[#f2b2a8]/20",
-              moon: "🌇",
+              moon:
+                "🌇",
             }
           : {
               page:
@@ -788,7 +790,8 @@ export default function Home() {
                 "border-white/10",
               button:
                 "from-pink-300 to-rose-200 text-[#25162d] shadow-pink-300/10",
-              moon: "🌕",
+              moon:
+                "🌕",
             };
 
   return (
@@ -1272,7 +1275,7 @@ export default function Home() {
               <p
                 className={`mt-1 text-xs leading-relaxed ${theme.muted}`}
               >
-                토끼, 거북이, 고양이, 돼지 중 하나를 선택하세요.
+                토끼, 닭, 고양이, 돼지 중 하나를 선택하세요.
                 <br />
                 세 동물은 같은 조건에서 매 순간 랜덤으로 달립니다.
               </p>
