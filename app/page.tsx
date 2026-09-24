@@ -338,47 +338,6 @@ const RACE_COLORS: Record<RaceAnimal, string> = {
   돼지: "bg-red-500",
 };
 
-type HighLowCard = {
-  suit: "♠" | "♥" | "♦" | "♣";
-  value: number;
-  label: string;
-};
-
-const HIGH_LOW_SUITS: HighLowCard["suit"][] = [
-  "♠",
-  "♥",
-  "♦",
-  "♣",
-];
-
-const HIGH_LOW_LABELS: Record<number, string> = {
-  2: "2",
-  3: "3",
-  4: "4",
-  5: "5",
-  6: "6",
-  7: "7",
-  8: "8",
-  9: "9",
-  10: "10",
-  11: "J",
-  12: "Q",
-  13: "K",
-  14: "A",
-};
-
-const createHighLowDeck = (): HighLowCard[] =>
-  HIGH_LOW_SUITS.flatMap((suit) =>
-    Array.from({ length: 13 }, (_, index) => {
-      const value = index + 2;
-
-      return {
-        suit,
-        value,
-        label: `${suit} ${HIGH_LOW_LABELS[value]}`,
-      };
-    })
-  );
 
 export default function Home() {
   const [current, setCurrent] =
@@ -438,29 +397,39 @@ export default function Home() {
   const [oddEvenLoseStreak, setOddEvenLoseStreak] =
     useState(0);
 
+  const [rpsMode, setRpsMode] =
+    useState<"match" | "streak">("match");
+
+  const [rpsPlayerChoice, setRpsPlayerChoice] =
+    useState<"가위" | "바위" | "보" | null>(null);
+
+  const [rpsComputerChoice, setRpsComputerChoice] =
+    useState<"가위" | "바위" | "보" | null>(null);
+
+  const [rpsResult, setRpsResult] =
+    useState<"승리" | "패배" | "무승부" | null>(null);
+
+  const [rpsPlayerScore, setRpsPlayerScore] =
+    useState(0);
+
+  const [rpsComputerScore, setRpsComputerScore] =
+    useState(0);
+
+  const [rpsWinStreak, setRpsWinStreak] =
+    useState(0);
+
+  const [rpsLoseStreak, setRpsLoseStreak] =
+    useState(0);
+
+  const [rpsBestWinStreak, setRpsBestWinStreak] =
+    useState(0);
+
+  const [rpsGameOver, setRpsGameOver] =
+    useState(false);
+
   const [streakCelebration, setStreakCelebration] =
     useState<number | null>(null);
 
-  const [currentHighLowCard, setCurrentHighLowCard] =
-    useState<HighLowCard | null>(null);
-
-  const [remainingHighLowDeck, setRemainingHighLowDeck] =
-    useState<HighLowCard[]>([]);
-
-  const [highLowResult, setHighLowResult] =
-    useState<"HIGH" | "LOW" | "SAME" | null>(null);
-
-  const [highLowMessage, setHighLowMessage] =
-    useState<string | null>(null);
-
-  const [highLowWinStreak, setHighLowWinStreak] =
-    useState(0);
-
-  const [highLowLoseStreak, setHighLowLoseStreak] =
-    useState(0);
-
-  const [highLowCardKey, setHighLowCardKey] =
-    useState(0);
 
   const usedQuestionIdsRef =
     useRef<Set<number>>(new Set());
@@ -739,149 +708,112 @@ export default function Home() {
     }
   };
 
-  const startHighLow = () => {
-    const deck = createHighLowDeck();
 
-    const firstIndex = Math.floor(
-      Math.random() * deck.length
-    );
-
-    const firstCard = deck[firstIndex];
-
-    const remainingDeck = deck.filter(
-      (_, index) => index !== firstIndex
-    );
-
-    setCurrentHighLowCard(firstCard);
-    setRemainingHighLowDeck(remainingDeck);
-    setHighLowResult(null);
-    setHighLowMessage("HIGH 또는 LOW를 선택하세요.");
-    setHighLowWinStreak(0);
-    setHighLowLoseStreak(0);
-    setHighLowCardKey((prev) => prev + 1);
+  const startRps = () => {
+    setRpsPlayerChoice(null);
+    setRpsComputerChoice(null);
+    setRpsResult(null);
+    setRpsPlayerScore(0);
+    setRpsComputerScore(0);
+    setRpsWinStreak(0);
+    setRpsLoseStreak(0);
+    setRpsGameOver(false);
   };
 
-  const playHighLow = (choice: "HIGH" | "LOW") => {
-    if (
-      !currentHighLowCard ||
-      remainingHighLowDeck.length === 0
+  const playRps = (
+    choice: "가위" | "바위" | "보"
+  ) => {
+    if (rpsGameOver) return;
+
+    const choices: Array<"가위" | "바위" | "보"> = [
+      "가위",
+      "바위",
+      "보",
+    ];
+
+    const computerChoice =
+      choices[Math.floor(Math.random() * choices.length)];
+
+    let result: "승리" | "패배" | "무승부";
+
+    if (choice === computerChoice) {
+      result = "무승부";
+    } else if (
+      (choice === "가위" && computerChoice === "보") ||
+      (choice === "바위" && computerChoice === "가위") ||
+      (choice === "보" && computerChoice === "바위")
     ) {
-      return;
-    }
-
-    const nextIndex = Math.floor(
-      Math.random() * remainingHighLowDeck.length
-    );
-
-    const nextCard =
-      remainingHighLowDeck[nextIndex];
-
-    const nextDeck =
-      remainingHighLowDeck.filter(
-        (_, index) => index !== nextIndex
-      );
-
-    setRemainingHighLowDeck(nextDeck);
-    setCurrentHighLowCard(nextCard);
-    setHighLowCardKey((prev) => prev + 1);
-
-    if (
-      nextCard.value ===
-      currentHighLowCard.value
-    ) {
-      setHighLowResult("SAME");
-      setHighLowMessage(
-        `🟰 같은 숫자! ${currentHighLowCard.label} → ${nextCard.label}`
-      );
-
-      return;
-    }
-
-    const isHigher =
-      nextCard.value >
-      currentHighLowCard.value;
-
-    const isCorrect =
-      (choice === "HIGH" && isHigher) ||
-      (choice === "LOW" && !isHigher);
-
-    if (isCorrect) {
-      const nextWinStreak =
-        highLowWinStreak + 1;
-
-      setHighLowResult(
-        isHigher ? "HIGH" : "LOW"
-      );
-
-      setHighLowWinStreak(nextWinStreak);
-      setHighLowLoseStreak(0);
-
-      setHighLowMessage(
-        `🎉 ${currentHighLowCard.label} → ${nextCard.label} · 적중!`
-      );
+      result = "승리";
     } else {
-      const nextLoseStreak =
-        highLowLoseStreak + 1;
-
-      setHighLowResult(
-        isHigher ? "HIGH" : "LOW"
-      );
-
-      setHighLowLoseStreak(nextLoseStreak);
-      setHighLowWinStreak(0);
-
-      setHighLowMessage(
-        `💥 ${currentHighLowCard.label} → ${nextCard.label} · 실패!`
-      );
-    }
-  };
-
-  const highLowProbability = (() => {
-    if (
-      !currentHighLowCard ||
-      remainingHighLowDeck.length === 0
-    ) {
-      return null;
+      result = "패배";
     }
 
-    const total = remainingHighLowDeck.length;
+    setRpsPlayerChoice(choice);
+    setRpsComputerChoice(computerChoice);
+    setRpsResult(result);
 
-    const highCount = remainingHighLowDeck.filter(
-      (card) =>
-        card.value > currentHighLowCard.value
-    ).length;
+    if (result === "무승부") {
+      return;
+    }
 
-    const lowCount = remainingHighLowDeck.filter(
-      (card) =>
-        card.value < currentHighLowCard.value
-    ).length;
+    if (result === "승리") {
+      const nextWinStreak = rpsWinStreak + 1;
+      setRpsWinStreak(nextWinStreak);
+      setRpsLoseStreak(0);
+      setRpsBestWinStreak((prev) =>
+        Math.max(prev, nextWinStreak)
+      );
 
-    const sameCount = remainingHighLowDeck.filter(
-      (card) =>
-        card.value === currentHighLowCard.value
-    ).length;
+      if (
+        nextWinStreak === 3 ||
+        nextWinStreak === 5 ||
+        nextWinStreak === 7 ||
+        nextWinStreak === 10
+      ) {
+        setStreakCelebration(nextWinStreak);
 
-    return {
-      high: Math.round(
-        (highCount / total) * 100
-      ),
-      low: Math.round(
-        (lowCount / total) * 100
-      ),
-      same: Math.round(
-        (sameCount / total) * 100
-      ),
-    };
-  })();
+        if (streakCelebrationTimerRef.current) {
+          clearTimeout(
+            streakCelebrationTimerRef.current
+          );
+        }
 
-  const resetHighLow = () => {
-    setCurrentHighLowCard(null);
-    setRemainingHighLowDeck([]);
-    setHighLowResult(null);
-    setHighLowMessage(null);
-    setHighLowWinStreak(0);
-    setHighLowLoseStreak(0);
-    setHighLowCardKey(0);
+        streakCelebrationTimerRef.current =
+          setTimeout(() => {
+            setStreakCelebration(null);
+            streakCelebrationTimerRef.current = null;
+          }, 3000);
+      }
+
+      if (rpsMode === "match") {
+        const nextScore = rpsPlayerScore + 1;
+        setRpsPlayerScore(nextScore);
+
+        if (nextScore >= 3) {
+          setRpsGameOver(true);
+        }
+      }
+    } else {
+      setRpsWinStreak(0);
+      setStreakCelebration(null);
+
+      if (streakCelebrationTimerRef.current) {
+        clearTimeout(
+          streakCelebrationTimerRef.current
+        );
+        streakCelebrationTimerRef.current = null;
+      }
+      setRpsLoseStreak((prev) => prev + 1);
+
+      if (rpsMode === "match") {
+        const nextScore = rpsComputerScore + 1;
+        setRpsComputerScore(nextScore);
+
+        if (nextScore >= 3) {
+          setRpsGameOver(true);
+        }
+      }
+    }
   };
 
   const theme =
@@ -1007,6 +939,17 @@ export default function Home() {
               moon:
                 "🌕",
             };
+  const streakTier =
+    streakCelebration === 10
+      ? "legend"
+      : streakCelebration === 7
+      ? "mega"
+      : streakCelebration === 5
+      ? "strong"
+      : streakCelebration === 3
+      ? "basic"
+      : "basic";
+
 
   return (
     <main
@@ -1076,46 +1019,166 @@ export default function Home() {
 
       {streakCelebration !== null && (
         <div className="pointer-events-none fixed inset-0 z-[120] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 animate-[streakFlash_0.8s_ease-out] bg-pink-300/15 backdrop-blur-[2px]" />
+          <div
+            className={`absolute inset-0 ${
+              streakTier === "legend"
+                ? "animate-[streakFlash_1.2s_ease-out] bg-yellow-200/30"
+                : streakTier === "mega"
+                ? "animate-[streakFlash_1s_ease-out] bg-purple-300/25"
+                : streakTier === "strong"
+                ? "animate-[streakFlash_0.9s_ease-out] bg-pink-300/25"
+                : "animate-[streakFlash_0.8s_ease-out] bg-pink-300/20"
+            } backdrop-blur-[2px]`}
+          />
 
-          <div className="absolute inset-0 overflow-hidden">
-            {Array.from({ length: 35 }).map((_, index) => (
-              <span
-                key={index}
-                className="absolute top-[-30px] text-2xl animate-[confettiFall_2.4s_ease-out_forwards]"
-                style={{
-                  left: `${(index * 37) % 100}%`,
-                  animationDelay: `${(index % 10) * 0.06}s`,
-                }}
-              >
-                {["✨", "🎉", "💥", "⭐", "🔥"][index % 5]}
-              </span>
-            ))}
+          <div
+            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white ${
+              streakTier === "legend"
+                ? "h-20 w-20 shadow-[0_0_90px_40px_rgba(255,215,0,0.95)] animate-[streakBurst_1.2s_ease-out_forwards]"
+                : streakTier === "mega"
+                ? "h-14 w-14 shadow-[0_0_65px_28px_rgba(168,85,247,0.9)] animate-[streakBurst_1s_ease-out_forwards]"
+                : streakTier === "strong"
+                ? "h-11 w-11 shadow-[0_0_50px_22px_rgba(255,105,180,0.85)] animate-[streakBurst_0.9s_ease-out_forwards]"
+                : "h-8 w-8 shadow-[0_0_35px_15px_rgba(255,105,180,0.75)] animate-[streakBurst_0.8s_ease-out_forwards]"
+            }`}
+          />
+
+          <div
+            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-white/80 ${
+              streakTier === "legend"
+                ? "h-[min(110vw,760px)] w-[min(110vw,760px)] border-[10px] animate-[streakRing_1.4s_ease-out_forwards]"
+                : streakTier === "mega"
+                ? "h-[min(92vw,650px)] w-[min(92vw,650px)] border-[8px] border-double animate-[streakRing_1.15s_ease-out_forwards]"
+                : streakTier === "strong"
+                ? "h-[min(82vw,580px)] w-[min(82vw,580px)] border-[7px] animate-[streakRing_1s_ease-out_forwards]"
+                : "h-[min(72vw,520px)] w-[min(72vw,520px)] border-[6px] animate-[streakRing_0.9s_ease-out_forwards]"
+            }`}
+          />
+
+          <div className="absolute inset-0">
+            {Array.from({
+              length:
+                streakTier === "legend"
+                  ? 80
+                  : streakTier === "mega"
+                  ? 64
+                  : streakTier === "strong"
+                  ? 56
+                  : 48,
+            }).map((_, index) => {
+              const count =
+                streakTier === "legend"
+                  ? 80
+                  : streakTier === "mega"
+                  ? 64
+                  : streakTier === "strong"
+                  ? 56
+                  : 48;
+              const angle = (index / count) * 360;
+              const distance =
+                (streakTier === "legend"
+                  ? 46
+                  : streakTier === "mega"
+                  ? 40
+                  : streakTier === "strong"
+                  ? 36
+                  : 32) +
+                (index % 8) * 9;
+
+              const particles =
+                streakTier === "legend"
+                  ? ["👑", "💥", "✨", "🔥", "⭐", "🎊", "⚡", "🌟"]
+                  : streakTier === "mega"
+                  ? ["💜", "💥", "✨", "🔥", "⭐", "🎊", "⚡"]
+                  : streakTier === "strong"
+                  ? ["🎉", "💥", "✨", "🔥", "⭐", "🎊"]
+                  : ["🎉", "✨", "💥", "⭐", "🔥", "🎊"];
+
+              return (
+                <span
+                  key={index}
+                  className={`absolute left-1/2 top-1/2 ${
+                    streakTier === "legend"
+                      ? "text-2xl sm:text-5xl animate-[streakParticle_1.5s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                      : streakTier === "mega"
+                      ? "text-xl sm:text-4xl animate-[streakParticle_1.35s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                      : "text-xl sm:text-3xl animate-[streakParticle_1.15s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                  }`}
+                  style={{
+                    "--angle": `${angle}deg`,
+                    "--distance": `${distance}vmin`,
+                    animationDelay: `${(index % 8) * 0.025}s`,
+                  } as React.CSSProperties}
+                >
+                  {particles[index % particles.length]}
+                </span>
+              );
+            })}
           </div>
 
-          <div className="relative z-10 text-center animate-[streakPop_0.65s_cubic-bezier(0.17,0.89,0.32,1.28)]">
-            <div className="mb-3 text-5xl sm:text-7xl">
-              🔥
+          <div
+            className={`relative z-10 text-center ${
+              streakTier === "legend"
+                ? "animate-[streakPop_0.9s_cubic-bezier(0.17,0.89,0.32,1.28)]"
+                : "animate-[streakPop_0.65s_cubic-bezier(0.17,0.89,0.32,1.28)]"
+            }`}
+          >
+            <div
+              className={`mb-3 ${
+                streakTier === "legend"
+                  ? "text-7xl sm:text-9xl"
+                  : streakTier === "mega"
+                  ? "text-6xl sm:text-8xl"
+                  : "text-5xl sm:text-7xl"
+              }`}
+            >
+              {streakCelebration === 10
+                ? "👑"
+                : streakCelebration === 7
+                ? "⚡"
+                : streakCelebration === 5
+                ? "💥"
+                : "🔥"}
             </div>
 
-            <div className="text-2xl font-black tracking-[0.15em] text-pink-100 drop-shadow-[0_0_12px_rgba(255,105,180,0.9)] sm:text-4xl">
+            <div
+              className={`font-black tracking-[0.15em] ${
+                streakTier === "legend"
+                  ? "text-4xl text-yellow-100 drop-shadow-[0_0_20px_rgba(255,215,0,1)] sm:text-6xl"
+                  : streakTier === "mega"
+                  ? "text-3xl text-purple-100 drop-shadow-[0_0_18px_rgba(168,85,247,1)] sm:text-5xl"
+                  : "text-2xl text-pink-100 drop-shadow-[0_0_12px_rgba(255,105,180,0.9)] sm:text-4xl"
+              }`}
+            >
               {streakCelebration}연승
             </div>
 
-            <div className="mt-3 text-4xl font-black text-white drop-shadow-[0_0_18px_rgba(255,255,255,0.8)] sm:text-6xl">
-              STREAK!
+            <div
+              className={`mt-3 font-black text-white ${
+                streakTier === "legend"
+                  ? "text-5xl drop-shadow-[0_0_25px_rgba(255,215,0,1)] sm:text-8xl"
+                  : streakTier === "mega"
+                  ? "text-5xl drop-shadow-[0_0_22px_rgba(168,85,247,1)] sm:text-7xl"
+                  : "text-4xl drop-shadow-[0_0_18px_rgba(255,255,255,0.8)] sm:text-6xl"
+              }`}
+            >
+              {streakCelebration === 10
+                ? "LEGENDARY!"
+                : streakCelebration === 7
+                ? "UNSTOPPABLE!"
+                : streakCelebration === 5
+                ? "ON FIRE!"
+                : "STREAK!"}
             </div>
 
-            <div className="mt-4 text-sm font-bold text-white/80 sm:text-base">
-              {streakCelebration === 3
-                ? "3연승 달성!"
-                : streakCelebration === 6
-                  ? "6연승 돌파!"
-                  : streakCelebration === 9
-                    ? "9연승 돌파!"
-                    : streakCelebration >= 30
-                      ? "LEGENDARY STREAK"
-                      : "아직도 안 멈춘다 🔥"}
+            <div className="mt-4 text-sm font-bold text-white/85 sm:text-base">
+              {streakCelebration === 10
+                ? "10연승 달성 · 전설의 영역!"
+                : streakCelebration === 7
+                ? "7연승 돌파 · 아무도 못 막는다!"
+                : streakCelebration === 5
+                ? "5연승 돌파 · 불붙었다!"
+                : "3연승 달성 · 시작이 좋다!"}
             </div>
           </div>
         </div>
@@ -1764,228 +1827,183 @@ export default function Home() {
               </button>
             </div>
 
+          </div>
+        </section>
+
+        <section className="mt-8">
+          <div
+            className={`rounded-3xl border p-5 ${theme.border} ${theme.card}`}
+          >
+            <div className="text-center">
+              <div
+                className={`text-xs font-bold tracking-[0.2em] ${theme.accent}`}
+              >
+                ROCK PAPER SCISSORS
+              </div>
+
+              <h3 className="mt-1 text-xl font-black">
+                ✊ 가위바위보
+              </h3>
+
+              <p
+                className={`mt-1 text-xs leading-relaxed ${theme.muted}`}
+              >
+                컴퓨터와 가위바위보 대결을 해보세요.
+                <br />
+                5판 3선승 또는 연승 모드로 즐길 수 있습니다.
+              </p>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setRpsMode("match");
+                  startRps();
+                }}
+                className={`rounded-xl border px-3 py-2 text-sm font-black transition-all ${
+                  rpsMode === "match"
+                    ? `${theme.button}`
+                    : `${theme.border} bg-white/[0.04]`
+                }`}
+              >
+                🏆 5판 3선승
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setRpsMode("streak");
+                  startRps();
+                }}
+                className={`rounded-xl border px-3 py-2 text-sm font-black transition-all ${
+                  rpsMode === "streak"
+                    ? `${theme.button}`
+                    : `${theme.border} bg-white/[0.04]`
+                }`}
+              >
+                🔥 연승 모드
+              </button>
+            </div>
+
             <div
-              className={`rounded-[28px] border p-5 backdrop-blur-xl transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
+              className={`mt-4 flex min-h-[150px] flex-col items-center justify-center rounded-2xl border ${theme.border} ${theme.inner}`}
             >
-              <div className="mb-4">
-                <div
-                  className={`text-xs font-bold tracking-[0.2em] ${theme.accent}`}
-                >
-                  HIGH & LOW
+              {rpsResult ? (
+                <>
+                  <div className="text-sm font-bold">
+                    {rpsPlayerChoice}　VS　{rpsComputerChoice}
+                  </div>
+
+                  <div
+                    className={`mt-2 text-3xl font-black ${
+                      rpsResult === "승리"
+                        ? "text-green-400"
+                        : rpsResult === "패배"
+                        ? "text-red-400"
+                        : theme.text
+                    }`}
+                  >
+                    {rpsResult === "승리"
+                      ? "🎉 승리!"
+                      : rpsResult === "패배"
+                      ? "💥 패배!"
+                      : "🤝 무승부"}
+                  </div>
+
+                  {rpsMode === "match" && (
+                    <div className="mt-2 text-sm font-black">
+                      나 {rpsPlayerScore} : {rpsComputerScore} 컴퓨터
+                    </div>
+                  )}
+
+                  {rpsGameOver && rpsMode === "match" && (
+                    <div className={`mt-1 text-xs font-bold ${theme.muted}`}>
+                      {rpsPlayerScore >= 3
+                        ? "🏆 3승 달성! 게임 승리!"
+                        : "💻 컴퓨터가 3승! 다시 도전해보세요."}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="text-5xl">✊ ✋ ✌️</div>
+                  <div
+                    className={`mt-3 text-sm font-bold ${theme.muted}`}
+                  >
+                    {rpsMode === "match"
+                      ? "5판 3선승을 시작해보세요"
+                      : "연승 모드를 시작해보세요"}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => playRps("가위")}
+                disabled={rpsGameOver}
+                className={`rounded-2xl bg-gradient-to-r px-2 py-4 text-base font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 ${theme.button}`}
+              >
+                ✌️ 가위
+              </button>
+
+              <button
+                type="button"
+                onClick={() => playRps("바위")}
+                disabled={rpsGameOver}
+                className={`rounded-2xl bg-gradient-to-r px-2 py-4 text-base font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 ${theme.button}`}
+              >
+                ✊ 바위
+              </button>
+
+              <button
+                type="button"
+                onClick={() => playRps("보")}
+                disabled={rpsGameOver}
+                className={`rounded-2xl bg-gradient-to-r px-2 py-4 text-base font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 ${theme.button}`}
+              >
+                🖐️ 보
+              </button>
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div
+                className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
+              >
+                <div className="text-[10px] font-bold">🔥 연승</div>
+                <div className="mt-1 text-sm font-black">
+                  {rpsWinStreak}연승
                 </div>
-
-                <h3 className="mt-1 text-xl font-black">
-                  🃏 하잉로우
-                </h3>
-
-                <p
-                  className={`mt-1 text-xs leading-relaxed ${theme.muted}`}
-                >
-                  다음 카드가 더 높을지 낮을지 맞혀보세요.
-                  <br />
-                  7판마다 자동으로 초기화되지 않습니다.
-                </p>
               </div>
 
               <div
-                className={`flex min-h-[180px] flex-col items-center justify-center rounded-2xl border ${theme.border} ${theme.inner}`}
+                className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
               >
-                {currentHighLowCard ? (
-                  <>
-                    <div
-                      key={highLowCardKey}
-                      className={`flex h-28 w-20 flex-col items-center justify-center rounded-2xl border-2 bg-white shadow-[0_10px_25px_rgba(0,0,0,0.25)] animate-[highLowCardAppear_0.35s_ease-out] ${
-                        currentHighLowCard.suit === "♥" ||
-                        currentHighLowCard.suit === "♦"
-                          ? "text-red-500"
-                          : "text-gray-800"
-                      }`}
-                    >
-                      <div className="text-2xl font-black">
-                        {currentHighLowCard.suit}
-                      </div>
-
-                      <div className="text-4xl font-black">
-                        {
-                          HIGH_LOW_LABELS[
-                            currentHighLowCard.value
-                          ]
-                        }
-                      </div>
-                    </div>
-
-                    <div
-                      className={`mt-3 text-center text-xs font-bold ${theme.muted}`}
-                    >
-                      {highLowMessage}
-                    </div>
-
-                    {highLowProbability && (
-                      <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                        <div className="rounded-xl border border-white/10 bg-white/[0.05] px-2 py-2">
-                          <div className="text-[10px] font-bold">
-                            ⬆️ HIGH
-                          </div>
-
-                          <div className="mt-1 text-sm font-black">
-                            {highLowProbability.high}%
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-white/10 bg-white/[0.05] px-2 py-2">
-                          <div className="text-[10px] font-bold">
-                            ⬇️ LOW
-                          </div>
-
-                          <div className="mt-1 text-sm font-black">
-                            {highLowProbability.low}%
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-white/10 bg-white/[0.05] px-2 py-2">
-                          <div className="text-[10px] font-bold">
-                            🟰 같은 숫자
-                          </div>
-
-                          <div className="mt-1 text-sm font-black">
-                            {highLowProbability.same}%
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="flex h-28 w-20 flex-col items-center justify-center rounded-2xl border-2 border-white/70 bg-gradient-to-br from-white via-gray-100 to-gray-300 text-gray-700 shadow-[0_10px_25px_rgba(0,0,0,0.2)]">
-                      <div className="text-3xl">
-                        🃏
-                      </div>
-
-                      <div className="mt-1 text-[10px] font-black">
-                        HIGH
-                      </div>
-
-                      <div className="text-[10px] font-black">
-                        LOW
-                      </div>
-                    </div>
-
-                    <div
-                      className={`mt-3 text-sm font-bold ${theme.muted}`}
-                    >
-                      하잉로우를 시작해보세요
-                    </div>
-                  </>
-                )}
+                <div className="text-[10px] font-bold">💥 연패</div>
+                <div className="mt-1 text-sm font-black">
+                  {rpsLoseStreak}연패
+                </div>
               </div>
 
-              {currentHighLowCard &&
-                remainingHighLowDeck.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        playHighLow("HIGH")
-                      }
-                      className={`rounded-2xl bg-gradient-to-r px-3 py-5 text-lg font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
-                    >
-                      ⬆️ HIGH
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        playHighLow("LOW")
-                      }
-                      className={`rounded-2xl bg-gradient-to-r px-3 py-5 text-lg font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
-                    >
-                      ⬇️ LOW
-                    </button>
-                  </div>
-                )}
-
-              {highLowResult !== null && (
-                <div
-                  className={`mt-4 rounded-2xl border p-3 text-center ${theme.border} bg-white/[0.04]`}
-                >
-                  <div className="text-[10px] font-bold tracking-[0.15em]">
-                    RESULT
-                  </div>
-
-                  <div className="mt-1 text-lg font-black">
-                    {highLowResult === "HIGH"
-                      ? "⬆️ HIGH"
-                      : highLowResult === "LOW"
-                        ? "⬇️ LOW"
-                        : "🟰 같은 숫자"}
-                  </div>
-
-                  <div
-                    className={`mt-1 text-xs font-bold ${theme.muted}`}
-                  >
-                    {highLowMessage}
-                  </div>
+              <div
+                className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
+              >
+                <div className="text-[10px] font-bold">👑 최고 연승</div>
+                <div className="mt-1 text-sm font-black">
+                  {rpsBestWinStreak}연승
                 </div>
-              )}
-
-              {(highLowWinStreak > 0 ||
-                highLowLoseStreak > 0) && (
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <div
-                    className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
-                  >
-                    <div className="text-[10px] font-bold">
-                      🔥 연승
-                    </div>
-
-                    <div className="mt-1 text-sm font-black">
-                      {highLowWinStreak}연승
-                    </div>
-                  </div>
-
-                  <div
-                    className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
-                  >
-                    <div className="text-[10px] font-bold">
-                      💥 연패
-                    </div>
-
-                    <div className="mt-1 text-sm font-black">
-                      {highLowLoseStreak}연패
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {currentHighLowCard &&
-                remainingHighLowDeck.length === 0 && (
-                  <div
-                    className={`mt-4 rounded-2xl border p-3 text-center text-xs font-bold ${theme.border} ${theme.muted}`}
-                  >
-                    🃏 52장의 카드를 모두 사용했습니다.
-                    <br />
-                    새 게임을 시작하려면 아래 버튼을 눌러주세요.
-                  </div>
-                )}
-
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={startHighLow}
-                  className={`w-full rounded-2xl bg-gradient-to-r px-4 py-3 text-sm font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
-                >
-                  🃏 새 게임
-                </button>
-
-                <button
-                  type="button"
-                  onClick={resetHighLow}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm font-black transition-all hover:bg-white/[0.08] ${theme.border}`}
-                >
-                  🎯 기록 초기화
-                </button>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={startRps}
+              className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3 font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
+            >
+              🔄 게임 다시 시작
+            </button>
           </div>
         </section>
 
@@ -2046,19 +2064,48 @@ export default function Home() {
           }
         }
 
-        @keyframes confettiFall {
+        @keyframes streakBurst {
           0% {
-            transform: translateY(-40px) rotate(0deg);
             opacity: 0;
+            transform: translate(-50%, -50%) scale(0.2);
           }
 
-          10% {
+          25% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(2.2);
+          }
+
+          100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(8);
+          }
+        }
+
+        @keyframes streakRing {
+          0% {
+            opacity: 0.95;
+            transform: translate(-50%, -50%) scale(0.15);
+          }
+
+          100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(1.35);
+          }
+        }
+
+        @keyframes streakParticle {
+          0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0) scale(0.3);
+          }
+
+          12% {
             opacity: 1;
           }
 
           100% {
-            transform: translateY(105vh) rotate(720deg);
             opacity: 0;
+            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--distance)) rotate(540deg) scale(1.15);
           }
         }
 
@@ -2151,28 +2198,6 @@ export default function Home() {
           }
         }
 
-        @keyframes highLowCardAppear {
-          0% {
-            opacity: 0;
-            transform: translateY(-18px)
-              rotate(-6deg)
-              scale(0.9);
-          }
-
-          60% {
-            opacity: 1;
-            transform: translateY(4px)
-              rotate(2deg)
-              scale(1.04);
-          }
-
-          100% {
-            opacity: 1;
-            transform: translateY(0)
-              rotate(0deg)
-              scale(1);
-          }
-        }
 
         .scrollbar-none {
           scrollbar-width: none;
