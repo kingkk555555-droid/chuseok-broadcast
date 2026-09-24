@@ -53,7 +53,7 @@ const questionTexts = [
   "방송이 끝난 뒤에도 아직 방송 중인 것 같은 착각을 해본 적 있나요?",
   "본인의 방송에 자막 하나만 계속 띄울 수 있다면 어떤 자막을 고르실 건가요?",
   "본인 방송에서 하나의 장면만 무한 반복해서 보여준다면 가장 웃길 것 같은 장면은 뭘까요?",
-  " 방송을 켰는데 시청자들이 전부 본인의 말에 반대로 반응한다면, 얼마나 버틸 수 있을까요?",
+  "방송을 켰는데 시청자들이 전부 본인의 말에 반대로 반응한다면, 얼마나 버틸 수 있을까요?",
   "연애할 때 연락 잘 되는 사람 vs 만나면 재밌는 사람, 하나만 고른다면?",
   "친해지고 싶은 사람이 먼저 다가오는 것과 내가 먼저 다가가는 것 중 뭐가 더 편하신가요?",
   "친한 친구와 하루 종일 붙어있기 vs 일주일에 한 번 만나도 편한 사이, 어느 쪽이 더 좋나요?",
@@ -194,13 +194,28 @@ const schedules = [
   { date: "09.30", title: "휴방" },
 ];
 
-const questions: Question[] = questionTexts.map((question, index) => ({
-  id: index + 1,
-  emoji: ["🐰", "🎙️", "💭", "🤣", "🧠", "🎮", "📺", "🧐"][index % 8],
-  question,
-}));
+const questions: Question[] = questionTexts.map(
+  (question, index) => ({
+    id: index + 1,
+    emoji: [
+      "🐰",
+      "🎙️",
+      "💭",
+      "🤣",
+      "🧠",
+      "🎮",
+      "📺",
+      "🧐",
+    ][index % 8],
+    question,
+  })
+);
 
-function SongpyeonIcon({ className = "" }: { className?: string }) {
+function SongpyeonIcon({
+  className = "",
+}: {
+  className?: string;
+}) {
   return (
     <svg
       viewBox="0 0 120 90"
@@ -209,12 +224,24 @@ function SongpyeonIcon({ className = "" }: { className?: string }) {
       role="img"
     >
       <defs>
-        <linearGradient id="songpyeonPink" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient
+          id="songpyeonPink"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="1"
+        >
           <stop offset="0%" stopColor="#fff5f0" />
           <stop offset="100%" stopColor="#f7c5c0" />
         </linearGradient>
 
-        <linearGradient id="songpyeonGreen" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient
+          id="songpyeonGreen"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="1"
+        >
           <stop offset="0%" stopColor="#f4ffe9" />
           <stop offset="100%" stopColor="#b8dca8" />
         </linearGradient>
@@ -275,17 +302,163 @@ function SongpyeonIcon({ className = "" }: { className?: string }) {
   );
 }
 
+const PATCH_VERSION = "2026.09.23";
+
+const PATCH_NOTES = [
+  "배포 과정에서 코드가 엉켜 일부 질문이 섞여 나오는 문제 수정",
+  "기존 룰렛 형식 제거",
+  "질문 표시 방식 개선",
+];
+
+type RaceAnimal = "토끼" | "거북이" | "고양이";
+
+type RacePositions = Record<RaceAnimal, number>;
+
+type Card = {
+  suit: "♠" | "♥" | "♦" | "♣";
+  value: number;
+  label: string;
+};
+
+const RACE_ANIMALS: RaceAnimal[] = [
+  "토끼",
+  "거북이",
+  "고양이",
+];
+
+const RACE_EMOJIS: Record<RaceAnimal, string> = {
+  토끼: "🐇",
+  거북이: "🐢",
+  고양이: "🐱",
+};
+
+const RACE_COLORS: Record<RaceAnimal, string> = {
+  토끼: "bg-pink-300/20",
+  거북이: "bg-green-300/20",
+  고양이: "bg-yellow-300/20",
+};
+
+const createDeck = (): Card[] => {
+  const suits: Card["suit"][] = [
+    "♠",
+    "♥",
+    "♦",
+    "♣",
+  ];
+
+  const deck: Card[] = [];
+
+  suits.forEach((suit) => {
+    for (let value = 2; value <= 14; value += 1) {
+      const label =
+        value === 14
+          ? "A"
+          : value === 13
+            ? "K"
+            : value === 12
+              ? "Q"
+              : value === 11
+                ? "J"
+                : String(value);
+
+      deck.push({
+        suit,
+        value,
+        label,
+      });
+    }
+  });
+
+  return deck;
+};
+
 export default function Home() {
-  const [current, setCurrent] = useState<Question | null>(null);
-  const [history, setHistory] = useState<Question[]>([]);
-  const [usedQuestionIds, setUsedQuestionIds] = useState<number[]>([]);
-  const [currentTime, setCurrentTime] = useState("");
-  const [currentDate, setCurrentDate] = useState("");
+  const [current, setCurrent] =
+    useState<Question | null>(null);
+
+  const [history, setHistory] =
+    useState<Question[]>([]);
+
+  const [currentTime, setCurrentTime] =
+    useState("");
+
+  const [currentDate, setCurrentDate] =
+    useState("");
+
   const [timePeriod, setTimePeriod] = useState<
     "dawn" | "day" | "evening" | "night"
   >("night");
 
-  const usedQuestionIdsRef = useRef<Set<number>>(new Set());
+  const [showPatchNotice, setShowPatchNotice] =
+    useState(false);
+
+  const [selectedAnimal, setSelectedAnimal] =
+    useState<RaceAnimal>("토끼");
+
+  const [racePositions, setRacePositions] =
+    useState<RacePositions>({
+      토끼: 0,
+      거북이: 0,
+      고양이: 0,
+    });
+
+  const [raceWinner, setRaceWinner] =
+    useState<RaceAnimal | null>(null);
+
+  const [isRacing, setIsRacing] =
+    useState(false);
+
+  const [currentCard, setCurrentCard] =
+    useState<Card | null>(null);
+
+  const [remainingDeck, setRemainingDeck] =
+    useState<Card[]>([]);
+
+  const [highLowResult, setHighLowResult] =
+    useState<string | null>(null);
+
+  const [isHighLowStarted, setIsHighLowStarted] =
+    useState(false);
+
+  const [highLowWinStreak, setHighLowWinStreak] =
+    useState(0);
+
+  const [highLowLoseStreak, setHighLowLoseStreak] =
+    useState(0);
+
+  const usedQuestionIdsRef =
+    useRef<Set<number>>(new Set());
+
+  const raceTimerRef =
+    useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    const viewedPatchVersion =
+      window.localStorage.getItem(
+        "random-talk-patch-version"
+      );
+
+    if (viewedPatchVersion !== PATCH_VERSION) {
+      setShowPatchNotice(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (raceTimerRef.current) {
+        clearInterval(raceTimerRef.current);
+      }
+    };
+  }, []);
+
+  const closePatchNotice = () => {
+    window.localStorage.setItem(
+      "random-talk-patch-version",
+      PATCH_VERSION
+    );
+
+    setShowPatchNotice(false);
+  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -299,10 +472,12 @@ export default function Home() {
           second: "2-digit",
         })
       );
+
       setCurrentDate(
-        `${String(now.getMonth() + 1).padStart(2, "0")}.${String(
-          now.getDate()
-        ).padStart(2, "0")}`
+        `${String(now.getMonth() + 1).padStart(
+          2,
+          "0"
+        )}.${String(now.getDate()).padStart(2, "0")}`
       );
 
       if (hour >= 6 && hour < 9) {
@@ -327,34 +502,255 @@ export default function Home() {
     if (questions.length === 0) return;
 
     let available = questions.filter(
-      (question) => !usedQuestionIdsRef.current.has(question.id)
+      (question) =>
+        !usedQuestionIdsRef.current.has(question.id)
     );
 
     if (available.length === 0) {
       usedQuestionIdsRef.current.clear();
-      setUsedQuestionIds([]);
       available = questions;
     }
 
     const target =
-      available[Math.floor(Math.random() * available.length)];
+      available[
+        Math.floor(Math.random() * available.length)
+      ];
 
     usedQuestionIdsRef.current.add(target.id);
-    setUsedQuestionIds(Array.from(usedQuestionIdsRef.current));
 
     setCurrent(target);
 
     setHistory((prev) =>
-      [target, ...prev.filter((q) => q.id !== target.id)].slice(0, 6)
+      [
+        target,
+        ...prev.filter((q) => q.id !== target.id),
+      ].slice(0, 6)
     );
   };
 
   const resetHistory = () => {
     setHistory([]);
-    setUsedQuestionIds([]);
     usedQuestionIdsRef.current.clear();
     setCurrent(null);
   };
+
+  const startRace = () => {
+    if (raceTimerRef.current) {
+      clearInterval(raceTimerRef.current);
+    }
+
+    const startPositions: RacePositions = {
+      토끼: 0,
+      거북이: 0,
+      고양이: 0,
+    };
+
+    setRacePositions(startPositions);
+    setRaceWinner(null);
+    setIsRacing(true);
+
+    raceTimerRef.current = setInterval(() => {
+      setRacePositions((prev) => {
+        const next: RacePositions = {
+          토끼:
+            prev.토끼 +
+            Math.floor(Math.random() * 6) +
+            1,
+
+          거북이:
+            prev.거북이 +
+            Math.floor(Math.random() * 6) +
+            1,
+
+          고양이:
+            prev.고양이 +
+            Math.floor(Math.random() * 6) +
+            1,
+        };
+
+        const finishedAnimals =
+          RACE_ANIMALS.filter(
+            (animal) => next[animal] >= 100
+          );
+
+        if (finishedAnimals.length > 0) {
+          const winner =
+            finishedAnimals[
+              Math.floor(
+                Math.random() *
+                  finishedAnimals.length
+              )
+            ];
+
+          next[winner] = 100;
+
+          if (raceTimerRef.current) {
+            clearInterval(raceTimerRef.current);
+            raceTimerRef.current = null;
+          }
+
+          setRaceWinner(winner);
+          setIsRacing(false);
+        }
+
+        return next;
+      });
+    }, 180);
+  };
+
+  const startHighLow = () => {
+    const deck = createDeck();
+
+    const firstIndex = Math.floor(
+      Math.random() * deck.length
+    );
+
+    const firstCard = deck[firstIndex];
+
+    const remaining = deck.filter(
+      (_, index) => index !== firstIndex
+    );
+
+    setCurrentCard(firstCard);
+    setRemainingDeck(remaining);
+    setHighLowResult(null);
+    setIsHighLowStarted(true);
+
+    setHighLowWinStreak(0);
+    setHighLowLoseStreak(0);
+  };
+
+  const calculateHighLowProbability = () => {
+    if (
+      !currentCard ||
+      remainingDeck.length === 0
+    ) {
+      return {
+        high: 0,
+        low: 0,
+        same: 0,
+      };
+    }
+
+    const higher = remainingDeck.filter(
+      (card) =>
+        card.value > currentCard.value
+    ).length;
+
+    const lower = remainingDeck.filter(
+      (card) =>
+        card.value < currentCard.value
+    ).length;
+
+    const same = remainingDeck.filter(
+      (card) =>
+        card.value === currentCard.value
+    ).length;
+
+    return {
+      high:
+        (higher / remainingDeck.length) *
+        100,
+
+      low:
+        (lower / remainingDeck.length) *
+        100,
+
+      same:
+        (same / remainingDeck.length) *
+        100,
+    };
+  };
+
+  const playHighLow = (
+    choice: "high" | "low" | "same"
+  ) => {
+    if (
+      !currentCard ||
+      remainingDeck.length === 0
+    ) {
+      return;
+    }
+
+    const drawIndex = Math.floor(
+      Math.random() * remainingDeck.length
+    );
+
+    const nextCard =
+      remainingDeck[drawIndex];
+
+    const nextRemainingDeck =
+      remainingDeck.filter(
+        (_, index) => index !== drawIndex
+      );
+
+    const isCorrect =
+      (choice === "same" &&
+        nextCard.value === currentCard.value) ||
+      (choice === "high" &&
+        nextCard.value > currentCard.value) ||
+      (choice === "low" &&
+        nextCard.value < currentCard.value);
+
+    let result = "";
+
+    if (
+      choice === "same" &&
+      nextCard.value === currentCard.value
+    ) {
+      result =
+        "🎉 적중! 같은 숫자가 나왔습니다.";
+    } else if (
+      choice === "high" &&
+      nextCard.value > currentCard.value
+    ) {
+      result =
+        "🎉 적중! 더 높은 카드가 나왔습니다.";
+    } else if (
+      choice === "low" &&
+      nextCard.value < currentCard.value
+    ) {
+      result =
+        "🎉 적중! 더 낮은 카드가 나왔습니다.";
+    } else if (
+      nextCard.value === currentCard.value
+    ) {
+      result =
+        "🟰 무승부! 같은 숫자가 나왔습니다.";
+    } else {
+      result =
+        choice === "same"
+          ? "💥 실패! 같은 숫자가 아니었습니다."
+          : "💥 실패! 반대쪽이 나왔습니다.";
+    }
+
+    if (isCorrect) {
+      setHighLowWinStreak(
+        (prev) => prev + 1
+      );
+
+      setHighLowLoseStreak(0);
+    } else {
+      setHighLowLoseStreak(
+        (prev) => prev + 1
+      );
+
+      setHighLowWinStreak(0);
+    }
+
+    setCurrentCard(nextCard);
+    setRemainingDeck(nextRemainingDeck);
+    setHighLowResult(result);
+
+    if (
+      nextRemainingDeck.length === 0
+    ) {
+      setIsHighLowStarted(false);
+    }
+  };
+
+  const probability =
+    calculateHighLowProbability();
 
   const theme =
     timePeriod === "dawn"
@@ -363,16 +759,26 @@ export default function Home() {
             "bg-[linear-gradient(135deg,#554c72_0%,#8d7891_42%,#d6aa96_100%)]",
           overlay:
             "bg-[radial-gradient(circle_at_50%_0%,rgba(255,239,202,0.38),transparent_45%)]",
-          cloud: "bg-[#f1d9d0]/30",
-          cloud2: "bg-[#ead2d5]/25",
-          panel: "bg-[#5b526f]/35",
-          card: "bg-[#4b4562]/45",
-          inner: "bg-[#343149]/65",
-          text: "text-[#fff8ef]",
-          muted: "text-[#fff2e5]/60",
-          soft: "text-[#ffe9d9]/70",
-          accent: "text-[#ffe0c9]",
-          border: "border-[#ffe9d9]/20",
+          cloud:
+            "bg-[#f1d9d0]/30",
+          cloud2:
+            "bg-[#ead2d5]/25",
+          panel:
+            "bg-[#5b526f]/35",
+          card:
+            "bg-[#4b4562]/45",
+          inner:
+            "bg-[#343149]/65",
+          text:
+            "text-[#fff8ef]",
+          muted:
+            "text-[#fff2e5]/60",
+          soft:
+            "text-[#ffe9d9]/70",
+          accent:
+            "text-[#ffe0c9]",
+          border:
+            "border-[#ffe9d9]/20",
           button:
             "from-[#ffd6b8] to-[#f6b9ad] text-[#3b2630] shadow-[#ffd6b8]/20",
           moon: "🌅",
@@ -383,16 +789,26 @@ export default function Home() {
               "bg-[linear-gradient(135deg,#a8d8e8_0%,#d8e9d1_48%,#f5d9ad_100%)]",
             overlay:
               "bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,225,0.55),transparent_46%)]",
-            cloud: "bg-white/45",
-            cloud2: "bg-white/35",
-            panel: "bg-white/25",
-            card: "bg-white/30",
-            inner: "bg-[#456273]/35",
-            text: "text-[#25303a]",
-            muted: "text-[#314552]/65",
-            soft: "text-[#455c68]/75",
-            accent: "text-[#8a5260]",
-            border: "border-white/40",
+            cloud:
+              "bg-white/45",
+            cloud2:
+              "bg-white/35",
+            panel:
+              "bg-white/25",
+            card:
+              "bg-white/30",
+            inner:
+              "bg-[#456273]/35",
+            text:
+              "text-[#25303a]",
+            muted:
+              "text-[#314552]/65",
+            soft:
+              "text-[#455c68]/75",
+            accent:
+              "text-[#8a5260]",
+            border:
+              "border-white/40",
             button:
               "from-[#f7c7a6] to-[#f4aeb3] text-[#3c2830] shadow-[#f3b6aa]/20",
             moon: "☀️",
@@ -403,34 +819,55 @@ export default function Home() {
                 "bg-[linear-gradient(135deg,#705c87_0%,#a16e83_45%,#e4a47d_100%)]",
               overlay:
                 "bg-[radial-gradient(circle_at_70%_5%,rgba(255,220,170,0.38),transparent_42%)]",
-              cloud: "bg-[#443b60]/45",
-              cloud2: "bg-[#503c59]/40",
-              panel: "bg-[#403751]/35",
-              card: "bg-[#3f354d]/45",
-              inner: "bg-[#29253b]/70",
-              text: "text-[#fff5ed]",
-              muted: "text-[#ffece0]/60",
-              soft: "text-[#ffe4d2]/75",
-              accent: "text-[#ffd3c0]",
-              border: "border-[#ffe5d8]/20",
+              cloud:
+                "bg-[#443b60]/45",
+              cloud2:
+                "bg-[#503c59]/40",
+              panel:
+                "bg-[#403751]/35",
+              card:
+                "bg-[#3f354d]/45",
+              inner:
+                "bg-[#29253b]/70",
+              text:
+                "text-[#fff5ed]",
+              muted:
+                "text-[#ffece0]/60",
+              soft:
+                "text-[#ffe4d2]/75",
+              accent:
+                "text-[#ffd3c0]",
+              border:
+                "border-[#ffe5d8]/20",
               button:
                 "from-[#f6c3ad] to-[#eaa5a7] text-[#3b2730] shadow-[#f2b2a8]/20",
               moon: "🌇",
             }
           : {
-              page: "bg-[#11152b]",
+              page:
+                "bg-[#11152b]",
               overlay:
                 "bg-[radial-gradient(circle_at_50%_0%,rgba(255,242,189,0.12),transparent_42%)]",
-              cloud: "bg-[#252b50]/80",
-              cloud2: "bg-[#252b50]/70",
-              panel: "bg-[#191d38]/90",
-              card: "bg-white/[0.055]",
-              inner: "bg-[#0c1022]/80",
-              text: "text-white",
-              muted: "text-white/55",
-              soft: "text-white/75",
-              accent: "text-pink-200",
-              border: "border-white/10",
+              cloud:
+                "bg-[#252b50]/80",
+              cloud2:
+                "bg-[#252b50]/70",
+              panel:
+                "bg-[#191d38]/90",
+              card:
+                "bg-white/[0.055]",
+              inner:
+                "bg-[#0c1022]/80",
+              text:
+                "text-white",
+              muted:
+                "text-white/55",
+              soft:
+                "text-white/75",
+              accent:
+                "text-pink-200",
+              border:
+                "border-white/10",
               button:
                 "from-pink-300 to-rose-200 text-[#25162d] shadow-pink-300/10",
               moon: "🌕",
@@ -440,6 +877,68 @@ export default function Home() {
     <main
       className={`min-h-screen overflow-hidden ${theme.page} ${theme.text} transition-colors duration-[1800ms]`}
     >
+      {showPatchNotice && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 px-5 backdrop-blur-sm">
+          <div
+            className={`relative w-full max-w-sm rounded-[28px] border p-5 shadow-2xl backdrop-blur-2xl ${theme.border} ${theme.panel}`}
+          >
+            <button
+              type="button"
+              onClick={closePatchNotice}
+              aria-label="패치 내역 닫기"
+              className={`absolute right-4 top-4 text-lg transition-opacity hover:opacity-70 ${theme.muted}`}
+            >
+              ×
+            </button>
+
+            <div
+              className={`mb-2 text-xs font-bold tracking-[0.18em] ${theme.accent}`}
+            >
+              PATCH NOTE
+            </div>
+
+            <h2 className="pr-8 text-xl font-black">
+              업데이트 안내
+            </h2>
+
+            <p
+              className={`mt-1 text-xs ${theme.muted}`}
+            >
+              {PATCH_VERSION} 업데이트
+            </p>
+
+            <div
+              className={`mt-5 rounded-2xl border p-4 ${theme.border} ${theme.card}`}
+            >
+              <ul className="space-y-3">
+                {PATCH_NOTES.map((note) => (
+                  <li
+                    key={note}
+                    className="flex items-start gap-2 text-sm leading-relaxed"
+                  >
+                    <span
+                      className={`mt-0.5 ${theme.accent}`}
+                    >
+                      ✓
+                    </span>
+
+                    <span>{note}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <button
+              type="button"
+              onClick={closePatchNotice}
+              className={`mt-5 w-full rounded-2xl bg-gradient-to-r px-4 py-3 text-sm font-black shadow-lg ${theme.button}`}
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
       <div
         className={`pointer-events-none fixed inset-0 overflow-hidden transition-all duration-[1800ms] ${theme.overlay}`}
       >
@@ -525,7 +1024,9 @@ export default function Home() {
             >
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h3 className="font-black">📝 최근 뽑은 주제</h3>
+                  <h3 className="font-black">
+                    📝 최근 뽑은 주제
+                  </h3>
 
                   <p
                     className={`mt-1 text-xs transition-colors duration-[1800ms] ${theme.muted}`}
@@ -552,7 +1053,9 @@ export default function Home() {
                   {history.map((item, index) => (
                     <button
                       key={`${item.id}-${index}`}
-                      onClick={() => setCurrent(item)}
+                      onClick={() =>
+                        setCurrent(item)
+                      }
                       className={`group flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
                     >
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.10] text-sm">
@@ -581,7 +1084,9 @@ export default function Home() {
                   : "drop-shadow-[0_0_30px_rgba(255,220,170,0.35)]"
               }`}
             >
-              {timePeriod === "night" ? "🌕" : theme.moon}
+              {timePeriod === "night"
+                ? "🌕"
+                : theme.moon}
             </div>
 
             <div
@@ -607,7 +1112,9 @@ export default function Home() {
             >
               <div className="border-b border-white/10 bg-white/[0.08] px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">📅</span>
+                  <span className="text-base">
+                    📅
+                  </span>
 
                   <span className="text-sm font-black">
                     방송 일정
@@ -639,7 +1146,8 @@ export default function Home() {
 
                     <span
                       className={`text-xs font-bold leading-relaxed ${
-                        schedule.title === "휴방"
+                        schedule.title ===
+                        "휴방"
                           ? theme.muted
                           : theme.soft
                       }`}
@@ -731,7 +1239,6 @@ export default function Home() {
                     key={current.id}
                     className="animate-[questionAppear_0.45s_ease-out]"
                   >
-                    {/* RANDOM TALK */}
                     <div className="mb-5 flex items-center justify-center">
                       <span className="inline-flex h-7 items-center justify-center gap-1 rounded-full border border-white/10 bg-white/[0.08] px-2.5 leading-none">
                         <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[11px] leading-none">
@@ -782,15 +1289,365 @@ export default function Home() {
           </div>
         </section>
 
+        {/* 미니게임 2종 */}
+        <section className="mt-6 grid gap-5 sm:grid-cols-2">
+          {/* 미니잉마 */}
+          <div
+            className={`rounded-[28px] border p-5 backdrop-blur-xl transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
+          >
+            <div className="mb-4">
+              <div
+                className={`text-xs font-bold tracking-[0.2em] ${theme.accent}`}
+              >
+                MINI RACE
+              </div>
+
+              <h3 className="mt-1 text-xl font-black">
+                🏇 미니잉마
+              </h3>
+
+              <p
+                className={`mt-1 text-xs leading-relaxed ${theme.muted}`}
+              >
+                토끼, 거북이, 고양이 중 하나를 선택하세요.
+                <br />
+                세 동물은 같은 조건에서 매 순간 랜덤으로 달립니다.
+              </p>
+            </div>
+
+            <div className="mb-4 grid grid-cols-3 gap-2">
+              {RACE_ANIMALS.map((animal) => {
+                const isSelected =
+                  selectedAnimal === animal;
+
+                return (
+                  <button
+                    key={animal}
+                    type="button"
+                    onClick={() => {
+                      if (!isRacing) {
+                        setSelectedAnimal(animal);
+                      }
+                    }}
+                    disabled={isRacing}
+                    className={`group relative overflow-hidden rounded-2xl border px-2 py-3 text-center transition-all duration-300 ${
+                      isSelected
+                        ? "scale-[1.04] border-pink-200/90 bg-pink-300/15 shadow-[0_0_8px_rgba(255,182,193,0.95),0_0_18px_rgba(255,105,180,0.65),0_0_34px_rgba(255,105,180,0.28),inset_0_0_16px_rgba(255,182,193,0.15)] animate-[raceNeon_1.5s_ease-in-out_infinite]"
+                        : `${theme.border} bg-white/[0.04] opacity-55 hover:bg-white/[0.09] hover:opacity-90`
+                    } ${
+                      isRacing
+                        ? "cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
+                    {isSelected && (
+                      <>
+                        <span className="pointer-events-none absolute inset-0 rounded-2xl border border-pink-100/70" />
+
+                        <span className="pointer-events-none absolute -inset-3 rounded-full bg-pink-300/10 blur-xl" />
+
+                        <span className="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-pink-100/90 shadow-[0_0_8px_rgba(255,255,255,1),0_0_16px_rgba(255,105,180,0.9)]" />
+                      </>
+                    )}
+
+                    <div
+                      className={`relative z-10 text-3xl transition-all duration-300 ${
+                        isSelected
+                          ? "scale-110 drop-shadow-[0_0_7px_rgba(255,230,240,1)] drop-shadow-[0_0_18px_rgba(255,105,180,0.9)]"
+                          : ""
+                      }`}
+                    >
+                      {RACE_EMOJIS[animal]}
+                    </div>
+
+                    <div
+                      className={`relative z-10 mt-1 text-xs font-black ${
+                        isSelected
+                          ? "text-pink-100 drop-shadow-[0_0_7px_rgba(255,105,180,0.9)]"
+                          : theme.muted
+                      }`}
+                    >
+                      {animal}
+                    </div>
+
+                    {isSelected && (
+                      <div className="relative z-10 mt-1 text-[9px] font-black tracking-[0.18em] text-pink-100 drop-shadow-[0_0_6px_rgba(255,105,180,0.9)]">
+                        SELECTED
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div
+              className={`rounded-2xl border p-4 ${theme.border} ${theme.inner}`}
+            >
+              <div className="space-y-3">
+                {RACE_ANIMALS.map((animal) => (
+                  <div key={animal}>
+                    <div className="mb-1 flex items-center justify-between text-xs font-bold">
+                      <span>
+                        {RACE_EMOJIS[animal]} {animal}
+                      </span>
+
+                      <span className={theme.muted}>
+                        {Math.min(
+                          racePositions[animal],
+                          100
+                        )}
+                        %
+                      </span>
+                    </div>
+
+                    <div className="h-3 overflow-hidden rounded-full bg-white/[0.08]">
+                      <div
+                        className={`h-full rounded-full transition-all duration-150 ${RACE_COLORS[animal]}`}
+                        style={{
+                          width: `${Math.min(
+                            racePositions[animal],
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {raceWinner && (
+                <div
+                  className={`mt-4 rounded-2xl border p-3 text-center ${theme.border} bg-white/[0.06]`}
+                >
+                  <div className="text-sm font-black">
+                    🏆 {RACE_EMOJIS[raceWinner]}{" "}
+                    {raceWinner} 승리!
+                  </div>
+
+                  <div
+                    className={`mt-1 text-xs ${theme.muted}`}
+                  >
+                    {selectedAnimal === raceWinner
+                      ? "선택한 동물이 1등했습니다!"
+                      : `선택한 ${RACE_EMOJIS[selectedAnimal]} ${selectedAnimal}은(는) 아쉽게도 패배했습니다.`}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={startRace}
+              disabled={isRacing}
+              className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3 font-black shadow-lg transition-all duration-[1800ms] hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 ${theme.button}`}
+            >
+              {isRacing
+                ? "🏇 경주 진행 중..."
+                : "🏇 경주 시작"}
+            </button>
+          </div>
+
+          {/* 하잉로우 */}
+          <div
+            className={`rounded-[28px] border p-5 backdrop-blur-xl transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
+          >
+            <div className="mb-4">
+              <div
+                className={`text-xs font-bold tracking-[0.2em] ${theme.accent}`}
+              >
+                HIGH & LOW
+              </div>
+
+              <h3 className="mt-1 text-xl font-black">
+                🃏 하잉로우
+              </h3>
+
+              <p
+                className={`mt-1 text-xs leading-relaxed ${theme.muted}`}
+              >
+                공개된 카드보다 다음 카드가 높을지 낮을지 맞혀보세요.
+                <br />
+                실제 52장 카드 덱을 사용하며, 사용한 카드는 다시 나오지 않습니다.
+              </p>
+            </div>
+
+            <div
+              className={`flex min-h-[150px] flex-col items-center justify-center rounded-2xl border ${theme.border} ${theme.inner}`}
+            >
+              {currentCard ? (
+                <>
+                  <div
+                    className={`text-5xl font-black ${
+                      currentCard.suit === "♥" ||
+                      currentCard.suit === "♦"
+                        ? "text-red-300"
+                        : ""
+                    }`}
+                  >
+                    {currentCard.label}
+                    {currentCard.suit}
+                  </div>
+
+                  <div
+                    className={`mt-2 text-xs ${theme.muted}`}
+                  >
+                    남은 카드 {remainingDeck.length}장
+                  </div>
+                </>
+              ) : (
+                <span
+                  className={`text-sm ${theme.muted}`}
+                >
+                  카드를 뽑아 게임을 시작하세요
+                </span>
+              )}
+            </div>
+
+            {currentCard &&
+              remainingDeck.length > 0 && (
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div
+                    className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
+                  >
+                    <div className="text-[10px] font-bold">
+                      높음
+                    </div>
+
+                    <div className="mt-1 text-sm font-black">
+                      {probability.high.toFixed(1)}%
+                    </div>
+                  </div>
+
+                  <div
+                    className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
+                  >
+                    <div className="text-[10px] font-bold">
+                      같음
+                    </div>
+
+                    <div className="mt-1 text-sm font-black">
+                      {probability.same.toFixed(1)}%
+                    </div>
+                  </div>
+
+                  <div
+                    className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
+                  >
+                    <div className="text-[10px] font-bold">
+                      낮음
+                    </div>
+
+                    <div className="mt-1 text-sm font-black">
+                      {probability.low.toFixed(1)}%
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            {highLowResult && (
+              <div
+                className={`mt-4 rounded-2xl border p-3 text-center ${theme.border} bg-white/[0.06]`}
+              >
+                <div className="text-sm font-black">
+                  {highLowResult}
+                </div>
+              </div>
+            )}
+
+            {currentCard &&
+              remainingDeck.length > 0 && (
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      playHighLow("high")
+                    }
+                    className={`rounded-2xl bg-gradient-to-r px-3 py-3 text-sm font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
+                  >
+                    ⬆️ 높음
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      playHighLow("same")
+                    }
+                    className={`rounded-2xl bg-gradient-to-r px-3 py-3 text-sm font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
+                  >
+                    🟰 같음
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      playHighLow("low")
+                    }
+                    className={`rounded-2xl bg-gradient-to-r px-3 py-3 text-sm font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
+                  >
+                    ⬇️ 낮음
+                  </button>
+                </div>
+              )}
+
+            {(currentCard ||
+              highLowWinStreak > 0 ||
+              highLowLoseStreak > 0) && (
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <div
+                  className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
+                >
+                  <div className="text-[10px] font-bold">
+                    🔥 연승
+                  </div>
+
+                  <div className="mt-1 text-sm font-black">
+                    {highLowWinStreak}연승
+                  </div>
+                </div>
+
+                <div
+                  className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
+                >
+                  <div className="text-[10px] font-bold">
+                    💥 연패
+                  </div>
+
+                  <div className="mt-1 text-sm font-black">
+                    {highLowLoseStreak}연패
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!currentCard ||
+            remainingDeck.length === 0 ? (
+              <button
+                type="button"
+                onClick={startHighLow}
+                className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3 font-black shadow-lg transition-all duration-[1800ms] hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
+              >
+                🃏{" "}
+                {currentCard
+                  ? "새 게임 시작"
+                  : "카드 뽑기"}
+              </button>
+            ) : null}
+          </div>
+        </section>
+
         <footer className="pb-5 pt-10 text-center">
           <div className="mb-2 flex items-center justify-center gap-2">
             <span className="text-2xl">
-              {timePeriod === "night" ? "🌕" : theme.moon}
+              {timePeriod === "night"
+                ? "🌕"
+                : theme.moon}
             </span>
 
             <SongpyeonIcon className="h-10 w-14" />
 
-            <span className="text-2xl">🐇</span>
+            <span className="text-2xl">
+              🐇
+            </span>
           </div>
 
           <p
@@ -813,6 +1670,25 @@ export default function Home() {
             opacity: 1;
             transform: translateY(0) scale(1);
             filter: blur(0);
+          }
+        }
+
+        @keyframes raceNeon {
+          0%,
+          100% {
+            box-shadow:
+              0 0 7px rgba(255, 182, 193, 0.85),
+              0 0 18px rgba(255, 105, 180, 0.55),
+              0 0 30px rgba(255, 105, 180, 0.2),
+              inset 0 0 12px rgba(255, 182, 193, 0.1);
+          }
+
+          50% {
+            box-shadow:
+              0 0 10px rgba(255, 210, 220, 1),
+              0 0 26px rgba(255, 105, 180, 0.85),
+              0 0 44px rgba(255, 105, 180, 0.38),
+              inset 0 0 20px rgba(255, 182, 193, 0.2);
           }
         }
 
