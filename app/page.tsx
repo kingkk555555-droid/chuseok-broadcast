@@ -314,12 +314,6 @@ type RaceAnimal = "토끼" | "거북이" | "고양이";
 
 type RacePositions = Record<RaceAnimal, number>;
 
-type Card = {
-  suit: "♠" | "♥" | "♦" | "♣";
-  value: number;
-  label: string;
-};
-
 const RACE_ANIMALS: RaceAnimal[] = [
   "토끼",
   "거북이",
@@ -336,40 +330,6 @@ const RACE_COLORS: Record<RaceAnimal, string> = {
   토끼: "bg-pink-300/20",
   거북이: "bg-green-300/20",
   고양이: "bg-yellow-300/20",
-};
-
-const createDeck = (): Card[] => {
-  const suits: Card["suit"][] = [
-    "♠",
-    "♥",
-    "♦",
-    "♣",
-  ];
-
-  const deck: Card[] = [];
-
-  suits.forEach((suit) => {
-    for (let value = 2; value <= 14; value += 1) {
-      const label =
-        value === 14
-          ? "A"
-          : value === 13
-            ? "K"
-            : value === 12
-              ? "Q"
-              : value === 11
-                ? "J"
-                : String(value);
-
-      deck.push({
-        suit,
-        value,
-        label,
-      });
-    }
-  });
-
-  return deck;
 };
 
 export default function Home() {
@@ -408,22 +368,22 @@ export default function Home() {
   const [isRacing, setIsRacing] =
     useState(false);
 
-  const [currentCard, setCurrentCard] =
-    useState<Card | null>(null);
+  const [oddEvenResult, setOddEvenResult] =
+    useState<"홀" | "짝" | null>(null);
 
-  const [remainingDeck, setRemainingDeck] =
-    useState<Card[]>([]);
-
-  const [highLowResult, setHighLowResult] =
+  const [oddEvenMessage, setOddEvenMessage] =
     useState<string | null>(null);
 
-  const [isHighLowStarted, setIsHighLowStarted] =
-    useState(false);
+  const [oddEvenDiceNumber, setOddEvenDiceNumber] =
+    useState<number | null>(null);
 
-  const [highLowWinStreak, setHighLowWinStreak] =
+  const [oddEvenDiceKey, setOddEvenDiceKey] =
     useState(0);
 
-  const [highLowLoseStreak, setHighLowLoseStreak] =
+  const [oddEvenWinStreak, setOddEvenWinStreak] =
+    useState(0);
+
+  const [oddEvenLoseStreak, setOddEvenLoseStreak] =
     useState(0);
 
   const [streakCelebration, setStreakCelebration] =
@@ -610,26 +570,13 @@ export default function Home() {
     }, 180);
   };
 
-  const startHighLow = () => {
-    const deck = createDeck();
-
-    const firstIndex = Math.floor(
-      Math.random() * deck.length
-    );
-
-    const firstCard = deck[firstIndex];
-
-    const remaining = deck.filter(
-      (_, index) => index !== firstIndex
-    );
-
-    setCurrentCard(firstCard);
-    setRemainingDeck(remaining);
-    setHighLowResult(null);
-    setIsHighLowStarted(true);
-
-    setHighLowWinStreak(0);
-    setHighLowLoseStreak(0);
+  const startOddEven = () => {
+    setOddEvenResult(null);
+    setOddEvenMessage(null);
+    setOddEvenDiceNumber(null);
+    setOddEvenDiceKey(0);
+    setOddEvenWinStreak(0);
+    setOddEvenLoseStreak(0);
     setStreakCelebration(null);
 
     if (streakCelebrationTimerRef.current) {
@@ -640,120 +587,32 @@ export default function Home() {
     }
   };
 
-  const calculateHighLowProbability = () => {
-    if (
-      !currentCard ||
-      remainingDeck.length === 0
-    ) {
-      return {
-        high: 0,
-        low: 0,
-        same: 0,
-      };
-    }
+  const playOddEven = (choice: "홀" | "짝") => {
+    const diceNumber =
+      Math.floor(Math.random() * 6) + 1;
 
-    const higher = remainingDeck.filter(
-      (card) =>
-        card.value > currentCard.value
-    ).length;
+    const result: "홀" | "짝" =
+      diceNumber % 2 === 0 ? "짝" : "홀";
 
-    const lower = remainingDeck.filter(
-      (card) =>
-        card.value < currentCard.value
-    ).length;
+    const isCorrect = choice === result;
 
-    const same = remainingDeck.filter(
-      (card) =>
-        card.value === currentCard.value
-    ).length;
-
-    return {
-      high:
-        (higher / remainingDeck.length) *
-        100,
-
-      low:
-        (lower / remainingDeck.length) *
-        100,
-
-      same:
-        (same / remainingDeck.length) *
-        100,
-    };
-  };
-
-  const playHighLow = (
-    choice: "high" | "low" | "same"
-  ) => {
-    if (
-      !currentCard ||
-      remainingDeck.length === 0
-    ) {
-      return;
-    }
-
-    const drawIndex = Math.floor(
-      Math.random() * remainingDeck.length
-    );
-
-    const nextCard =
-      remainingDeck[drawIndex];
-
-    const nextRemainingDeck =
-      remainingDeck.filter(
-        (_, index) => index !== drawIndex
-      );
-
-    const isCorrect =
-      (choice === "same" &&
-        nextCard.value === currentCard.value) ||
-      (choice === "high" &&
-        nextCard.value > currentCard.value) ||
-      (choice === "low" &&
-        nextCard.value < currentCard.value);
-
-    let result = "";
-
-    if (
-      choice === "same" &&
-      nextCard.value === currentCard.value
-    ) {
-      result =
-        "🎉 적중! 같은 숫자가 나왔습니다.";
-    } else if (
-      choice === "high" &&
-      nextCard.value > currentCard.value
-    ) {
-      result =
-        "🎉 적중! 더 높은 카드가 나왔습니다.";
-    } else if (
-      choice === "low" &&
-      nextCard.value < currentCard.value
-    ) {
-      result =
-        "🎉 적중! 더 낮은 카드가 나왔습니다.";
-    } else if (
-      nextCard.value === currentCard.value
-    ) {
-      result =
-        "🟰 무승부! 같은 숫자가 나왔습니다.";
-    } else {
-      result =
-        choice === "same"
-          ? "💥 실패! 같은 숫자가 아니었습니다."
-          : "💥 실패! 반대쪽이 나왔습니다.";
-    }
+    setOddEvenDiceNumber(diceNumber);
+    setOddEvenResult(result);
+    setOddEvenDiceKey((prev) => prev + 1);
 
     if (isCorrect) {
       const nextWinStreak =
-        highLowWinStreak + 1;
+        oddEvenWinStreak + 1;
 
-      setHighLowWinStreak(nextWinStreak);
-      setHighLowLoseStreak(0);
+      setOddEvenWinStreak(nextWinStreak);
+      setOddEvenLoseStreak(0);
+      setOddEvenMessage(
+        `🎉 ${diceNumber}! ${result}! 적중!`
+      );
 
       if (
-        nextWinStreak >= 5 &&
-        nextWinStreak % 5 === 0
+        nextWinStreak >= 3 &&
+        nextWinStreak % 3 === 0
       ) {
         setStreakCelebration(nextWinStreak);
 
@@ -770,11 +629,14 @@ export default function Home() {
           }, 3000);
       }
     } else {
-      setHighLowLoseStreak(
+      setOddEvenLoseStreak(
         (prev) => prev + 1
       );
 
-      setHighLowWinStreak(0);
+      setOddEvenWinStreak(0);
+      setOddEvenMessage(
+        `💥 ${diceNumber}! ${result}! 실패!`
+      );
 
       setStreakCelebration(null);
 
@@ -785,20 +647,7 @@ export default function Home() {
         streakCelebrationTimerRef.current = null;
       }
     }
-
-    setCurrentCard(nextCard);
-    setRemainingDeck(nextRemainingDeck);
-    setHighLowResult(result);
-
-    if (
-      nextRemainingDeck.length === 0
-    ) {
-      setIsHighLowStarted(false);
-    }
   };
-
-  const probability =
-    calculateHighLowProbability();
 
   const theme =
     timePeriod === "dawn"
@@ -1020,13 +869,13 @@ export default function Home() {
             </div>
 
             <div className="mt-4 text-sm font-bold text-white/80 sm:text-base">
-              {streakCelebration === 10
-                ? "10연승 달성!"
-                : streakCelebration === 20
-                  ? "20연승 돌파!"
-                  : streakCelebration === 30
-                    ? "30연승 돌파!"
-                    : streakCelebration >= 50
+              {streakCelebration === 3
+                ? "3연승 달성!"
+                : streakCelebration === 6
+                  ? "6연승 돌파!"
+                  : streakCelebration === 9
+                    ? "9연승 돌파!"
+                    : streakCelebration >= 30
                       ? "LEGENDARY STREAK"
                       : "아직도 안 멈춘다 🔥"}
             </div>
@@ -1547,143 +1396,78 @@ export default function Home() {
               <div
                 className={`text-xs font-bold tracking-[0.2em] ${theme.accent}`}
               >
-                HIGH & LOW
+                ODD & EVEN
               </div>
 
               <h3 className="mt-1 text-xl font-black">
-                🃏 하잉로우
+                🎯 홀짝
               </h3>
 
               <p
                 className={`mt-1 text-xs leading-relaxed ${theme.muted}`}
               >
-                공개된 카드보다 다음 카드가 높을지 낮을지 맞혀보세요.
+                홀과 짝 중 하나를 선택해보세요.
                 <br />
-                실제 52장 카드 덱을 사용하며, 사용한 카드는 다시 나오지 않습니다.(5연승시 임팩트 발생)
+                주사위를 굴려 결과를 확인하고, 맞히면 연승이 이어집니다.
               </p>
             </div>
 
             <div
-              className={`flex min-h-[150px] flex-col items-center justify-center rounded-2xl border ${theme.border} ${theme.inner}`}
+              className={`flex min-h-[150px] flex-col items-center justify-center overflow-visible rounded-2xl border ${theme.border} ${theme.inner}`}
+              style={{
+                perspective: "900px",
+              }}
             >
-              {currentCard ? (
+              {oddEvenDiceNumber ? (
                 <>
                   <div
-                    className={`text-5xl font-black ${
-                      currentCard.suit === "♥" ||
-                      currentCard.suit === "♦"
-                        ? "text-red-300"
-                        : ""
-                    }`}
+                    key={oddEvenDiceKey}
+                    className="flex h-24 w-24 items-center justify-center rounded-[22px] border-[4px] border-white/80 bg-gradient-to-br from-white via-gray-100 to-gray-300 text-5xl font-black text-gray-800 shadow-[0_12px_30px_rgba(0,0,0,0.28),inset_0_0_18px_rgba(255,255,255,0.9)] animate-[oddEvenDiceToss_1.05s_cubic-bezier(0.22,0.61,0.36,1)]"
                   >
-                    {currentCard.label}
-                    {currentCard.suit}
+                    {oddEvenDiceNumber}
                   </div>
 
                   <div
-                    className={`mt-2 text-xs ${theme.muted}`}
+                    className={`mt-3 text-sm font-bold ${theme.muted}`}
                   >
-                    남은 카드 {remainingDeck.length}장
+                    {oddEvenMessage}
                   </div>
                 </>
               ) : (
-                <span
-                  className={`text-sm ${theme.muted}`}
-                >
-                  카드를 뽑아 게임을 시작하세요
-                </span>
+                <>
+                  <div className="flex h-24 w-24 items-center justify-center rounded-[22px] border-[4px] border-white/70 bg-gradient-to-br from-white via-gray-100 to-gray-300 text-5xl font-black text-gray-700 shadow-[0_10px_25px_rgba(0,0,0,0.2)]">
+                    🎲
+                  </div>
+
+                  <div
+                    className={`mt-3 text-sm font-bold ${theme.muted}`}
+                  >
+                    홀짝을 선택해보세요
+                  </div>
+                </>
               )}
             </div>
 
-            {currentCard &&
-              remainingDeck.length > 0 && (
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <div
-                    className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
-                  >
-                    <div className="text-[10px] font-bold">
-                      높음
-                    </div>
-
-                    <div className="mt-1 text-sm font-black">
-                      {probability.high.toFixed(1)}%
-                    </div>
-                  </div>
-
-                  <div
-                    className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
-                  >
-                    <div className="text-[10px] font-bold">
-                      같음
-                    </div>
-
-                    <div className="mt-1 text-sm font-black">
-                      {probability.same.toFixed(1)}%
-                    </div>
-                  </div>
-
-                  <div
-                    className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
-                  >
-                    <div className="text-[10px] font-bold">
-                      낮음
-                    </div>
-
-                    <div className="mt-1 text-sm font-black">
-                      {probability.low.toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
-              )}
-
-            {highLowResult && (
-              <div
-                className={`mt-4 rounded-2xl border p-3 text-center ${theme.border} bg-white/[0.06]`}
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => playOddEven("홀")}
+                className={`rounded-2xl bg-gradient-to-r px-3 py-5 text-lg font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
               >
-                <div className="text-sm font-black">
-                  {highLowResult}
-                </div>
-              </div>
-            )}
+                ⭕ 홀
+              </button>
 
-            {currentCard &&
-              remainingDeck.length > 0 && (
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      playHighLow("high")
-                    }
-                    className={`rounded-2xl bg-gradient-to-r px-3 py-3 text-sm font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
-                  >
-                    ⬆️ 높음
-                  </button>
+              <button
+                type="button"
+                onClick={() => playOddEven("짝")}
+                className={`rounded-2xl bg-gradient-to-r px-3 py-5 text-lg font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
+              >
+                🔵 짝
+              </button>
+            </div>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      playHighLow("same")
-                    }
-                    className={`rounded-2xl bg-gradient-to-r px-3 py-3 text-sm font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
-                  >
-                    🟰 같음
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      playHighLow("low")
-                    }
-                    className={`rounded-2xl bg-gradient-to-r px-3 py-3 text-sm font-black shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
-                  >
-                    ⬇️ 낮음
-                  </button>
-                </div>
-              )}
-
-            {(currentCard ||
-              highLowWinStreak > 0 ||
-              highLowLoseStreak > 0) && (
+            {(oddEvenWinStreak > 0 ||
+              oddEvenLoseStreak > 0) && (
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <div
                   className={`rounded-xl border p-2 text-center ${theme.border} bg-white/[0.04]`}
@@ -1693,7 +1477,7 @@ export default function Home() {
                   </div>
 
                   <div className="mt-1 text-sm font-black">
-                    {highLowWinStreak}연승
+                    {oddEvenWinStreak}연승
                   </div>
                 </div>
 
@@ -1705,25 +1489,19 @@ export default function Home() {
                   </div>
 
                   <div className="mt-1 text-sm font-black">
-                    {highLowLoseStreak}연패
+                    {oddEvenLoseStreak}연패
                   </div>
                 </div>
               </div>
             )}
 
-            {!currentCard ||
-            remainingDeck.length === 0 ? (
-              <button
-                type="button"
-                onClick={startHighLow}
-                className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3 font-black shadow-lg transition-all duration-[1800ms] hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
-              >
-                🃏{" "}
-                {currentCard
-                  ? "새 게임 시작"
-                  : "카드 뽑기"}
-              </button>
-            ) : null}
+            <button
+              type="button"
+              onClick={startOddEven}
+              className={`mt-4 w-full rounded-2xl bg-gradient-to-r px-5 py-3 font-black shadow-lg transition-all duration-[1800ms] hover:-translate-y-0.5 active:translate-y-0 ${theme.button}`}
+            >
+              🎯 연승 기록 초기화
+            </button>
           </div>
         </section>
 
@@ -1830,6 +1608,62 @@ export default function Home() {
               0 0 26px rgba(255, 105, 180, 0.85),
               0 0 44px rgba(255, 105, 180, 0.38),
               inset 0 0 20px rgba(255, 182, 193, 0.2);
+          }
+        }
+
+        @keyframes oddEvenDiceToss {
+          0% {
+            transform: translateY(25px)
+              rotate(0deg)
+              scale(0.8);
+          }
+
+          15% {
+            transform: translateY(-25px)
+              rotate(90deg)
+              scale(0.95);
+          }
+
+          30% {
+            transform: translateY(-75px)
+              rotate(220deg)
+              scale(1.05);
+          }
+
+          45% {
+            transform: translateY(-95px)
+              rotate(420deg)
+              scale(1.08);
+          }
+
+          60% {
+            transform: translateY(-70px)
+              rotate(620deg)
+              scale(1.05);
+          }
+
+          75% {
+            transform: translateY(-30px)
+              rotate(800deg)
+              scale(1);
+          }
+
+          88% {
+            transform: translateY(8px)
+              rotate(940deg)
+              scale(0.95);
+          }
+
+          94% {
+            transform: translateY(-5px)
+              rotate(970deg)
+              scale(1.02);
+          }
+
+          100% {
+            transform: translateY(0)
+              rotate(990deg)
+              scale(1);
           }
         }
 
