@@ -182,7 +182,8 @@ const questionTexts = [
   "예전과 생각이 완전히 바뀐 가치관이 있나요?",
   "나는 아침형 인간이다 vs 나는 밤형 인간이다",
   "첫 인상이랑 실제 성격이랑 다르다는 말 들어본적 있나요?",
-  "요즘 머릿속을 제일 많이 차지하는 생각이 무엇인가요?"
+  "요즘 머릿속을 제일 많이 차지하는 생각이 무엇인가요?",
+  "구독자 100만이 되면 가장먼저 무엇을 하고 싶나요?"
 
 ];
 
@@ -193,7 +194,7 @@ const schedules = [
   { date: "09.26", title: "추석연휴 기념방송 · 제이팝 라이브 월드컵" },
   { date: "09.27", title: "<템빨> 1~2화 같이보기" },
   { date: "09.28", title: "휴방" },
-  { date: "09.29", title: "초대석" },
+  { date: "09.29", title: "부동산 토크 초대석" },
   { date: "09.30", title: "휴방" },
 ];
 
@@ -359,6 +360,29 @@ export default function Home() {
   const [showPatchNotice, setShowPatchNotice] =
     useState(false);
 
+  const [show90MillionCelebration, setShow90MillionCelebration] =
+    useState(true);
+
+  const [millionCelebrationPhase, setMillionCelebrationPhase] =
+    useState<
+      | "count"
+      | "impact"
+      | "message1"
+      | "message2"
+      | "message3"
+      | "message4"
+      | "message5"
+      | "message6"
+      | "message7"
+      | "platinum1"
+      | "platinum2"
+      | "platinum3"
+      | "platinumGlitch"
+    >("count");
+
+  const [millionSubscriberCount, setMillionSubscriberCount] =
+    useState(899995);
+
   const [selectedAnimal, setSelectedAnimal] =
     useState<RaceAnimal>("토끼");
 
@@ -440,6 +464,9 @@ export default function Home() {
   const streakCelebrationTimerRef =
     useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const millionCelebrationTimerRef =
+    useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     const viewedPatchVersion =
       window.localStorage.getItem(
@@ -449,6 +476,67 @@ export default function Home() {
     if (viewedPatchVersion !== PATCH_VERSION) {
       setShowPatchNotice(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const startedAt = performance.now();
+
+    millionCelebrationTimerRef.current = setInterval(() => {
+      const elapsed = performance.now() - startedAt;
+
+      if (elapsed < 5000) {
+        const step = Math.min(
+          5,
+          Math.floor(elapsed / 1000)
+        );
+
+        setMillionCelebrationPhase("count");
+        setMillionSubscriberCount(899995 + step);
+        return;
+      }
+
+      setMillionSubscriberCount(900000);
+
+      if (elapsed < 9000) {
+        setMillionCelebrationPhase("impact");
+      } else if (elapsed < 13000) {
+        setMillionCelebrationPhase("message1");
+      } else if (elapsed < 17000) {
+        setMillionCelebrationPhase("message2");
+      } else if (elapsed < 21000) {
+        setMillionCelebrationPhase("message3");
+      } else if (elapsed < 27000) {
+        setMillionCelebrationPhase("message4");
+      } else if (elapsed < 27000) {
+        setMillionCelebrationPhase("message5");
+      } else if (elapsed < 29500) {
+        setMillionCelebrationPhase("message6");
+      } else if (elapsed < 32000) {
+        setMillionCelebrationPhase("message7");
+      } else if (elapsed < 34500) {
+        setMillionCelebrationPhase("platinum1");
+      } else if (elapsed < 38000) {
+        setMillionCelebrationPhase("platinum2");
+      } else if (elapsed < 43000) {
+        setMillionCelebrationPhase("platinum3");
+      } else if (elapsed < 44800) {
+        setMillionCelebrationPhase("platinumGlitch");
+      } else {
+        setShow90MillionCelebration(false);
+
+        if (millionCelebrationTimerRef.current) {
+          clearInterval(millionCelebrationTimerRef.current);
+          millionCelebrationTimerRef.current = null;
+        }
+      }
+    }, 50);
+
+    return () => {
+      if (millionCelebrationTimerRef.current) {
+        clearInterval(millionCelebrationTimerRef.current);
+        millionCelebrationTimerRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -462,8 +550,22 @@ export default function Home() {
           streakCelebrationTimerRef.current
         );
       }
+
+      if (millionCelebrationTimerRef.current) {
+        clearInterval(millionCelebrationTimerRef.current);
+        millionCelebrationTimerRef.current = null;
+      }
     };
   }, []);
+
+  const close90MillionCelebration = () => {
+    setShow90MillionCelebration(false);
+
+    if (millionCelebrationTimerRef.current) {
+      clearInterval(millionCelebrationTimerRef.current);
+      millionCelebrationTimerRef.current = null;
+    }
+  };
 
   const closePatchNotice = () => {
     window.localStorage.setItem(
@@ -955,6 +1057,278 @@ export default function Home() {
     <main
       className={`min-h-screen overflow-hidden ${theme.page} ${theme.text} transition-colors duration-[1800ms]`}
     >
+      {show90MillionCelebration && (
+        <div className="fixed inset-0 z-[200] overflow-hidden bg-[#050509] text-white">
+          <button
+            type="button"
+            onClick={close90MillionCelebration}
+            aria-label="90만 달성 연출 닫기"
+            className="absolute right-5 top-5 z-30 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl font-light text-white/80 backdrop-blur-md transition-all hover:bg-white/20 hover:text-white sm:right-7 sm:top-7"
+          >
+            ×
+          </button>
+
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,176,207,0.18),transparent_28%),radial-gradient(circle_at_50%_100%,rgba(255,105,180,0.10),transparent_45%)]" />
+
+          {millionCelebrationPhase === "impact" && (
+            <>
+              {/* 화면 전체를 덮는 90만 달성 플래시 */}
+              <div className="absolute inset-0 z-0 animate-[millionFlash_1s_ease-out_forwards] bg-white" />
+              <div className="absolute inset-0 z-0 animate-[millionShake_0.95s_ease-out_forwards]" />
+
+              {/* 중앙 초대형 충격파 */}
+              <div className="absolute left-1/2 top-1/2 z-[1] h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_60px_30px_rgba(255,255,255,1),0_0_180px_80px_rgba(255,105,180,0.95)] animate-[millionCore_1.4s_cubic-bezier(0.16,1,0.3,1)_forwards]" />
+              <div className="absolute left-1/2 top-1/2 z-[1] h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-[7px] border-white animate-[millionRing_1.5s_ease-out_forwards]" />
+              <div className="absolute left-1/2 top-1/2 z-[1] h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-[5px] border-pink-300 animate-[millionRing_1.8s_0.08s_ease-out_forwards]" />
+              <div className="absolute left-1/2 top-1/2 z-[1] h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-yellow-100 animate-[millionRing_2.1s_0.16s_ease-out_forwards]" />
+
+              {/* 화면 곳곳에서 동시에 터지는 대형 폭죽 */}
+              {[
+                [16, 22], [50, 16], [84, 22],
+                [9, 52], [91, 52],
+                [18, 79], [50, 86], [82, 78],
+              ].map(([x, y], burstIndex) => (
+                <div
+                  key={`burst-${burstIndex}`}
+                  className="absolute z-[2] h-1 w-1"
+                  style={{ left: `${x}%`, top: `${y}%` }}
+                >
+                  <div className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_28px_12px_rgba(255,255,255,0.95)] animate-[fireworkCore_0.8s_ease-out_forwards]" />
+                  {Array.from({ length: 30 }).map((_, index) => {
+                    const angle = (index / 30) * 360;
+                    const distance = 9 + (index % 6) * 2.5;
+                    const size = 2 + (index % 3);
+                    return (
+                      <span
+                        key={index}
+                        className="absolute left-1/2 top-1/2 block origin-center rounded-full bg-white shadow-[0_0_9px_3px_rgba(255,190,220,0.95)] animate-[fireworkParticle_1.55s_cubic-bezier(0.12,0.7,0.2,1)_forwards]"
+                        style={{
+                          width: `${size}px`,
+                          height: `${size}px`,
+                          '--angle': `${angle}deg`,
+                          '--distance': `${distance}vmin`,
+                          animationDelay: `${(burstIndex % 4) * 0.12 + (index % 7) * 0.012}s`,
+                        } as React.CSSProperties}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+
+              {/* 중앙에서 사방으로 쏟아지는 별/빛 파편 */}
+              <div className="absolute inset-0 z-[3]">
+                {Array.from({ length: 180 }).map((_, index) => {
+                  const angle = (index / 180) * 360 + (index % 11) * 3;
+                  const distance = 30 + (index % 18) * 4;
+                  const size = 2 + (index % 5);
+                  const rotate = index % 2 ? 'rotate-45' : '';
+                  return (
+                    <span
+                      key={index}
+                      className={`absolute left-1/2 top-1/2 block ${rotate} rounded-sm bg-white shadow-[0_0_12px_3px_rgba(255,255,255,0.9)] animate-[millionParticle_1.9s_cubic-bezier(0.08,0.72,0.18,1)_forwards]`}
+                      style={{
+                        width: `${size}px`,
+                        height: `${size * 2.5}px`,
+                        '--angle': `${angle}deg`,
+                        '--distance': `${distance}vmin`,
+                        animationDelay: `${(index % 20) * 0.018}s`,
+                      } as React.CSSProperties}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* 화면 가장자리에서 중앙으로 들어왔다가 터지는 금빛 리본 */}
+              <div className="absolute inset-0 z-[4]">
+                {Array.from({ length: 80 }).map((_, index) => (
+                  <i
+                    key={index}
+                    className="absolute block h-1 w-8 rounded-full bg-gradient-to-r from-yellow-100 via-white to-pink-200 shadow-[0_0_12px_3px_rgba(255,210,120,0.8)] animate-[confettiFall_2.6s_ease-out_forwards]"
+                    style={{
+                      left: `${(index * 37) % 100}%`,
+                      top: `${-8 - (index % 20)}%`,
+                      '--drift': `${-25 + (index % 51)}vw`,
+                      '--spin': `${360 + (index % 5) * 180}deg`,
+                      animationDelay: `${(index % 16) * 0.035}s`,
+                    } as React.CSSProperties}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          <div className="relative z-10 flex h-full items-center justify-center px-6 text-center">
+            {millionCelebrationPhase === "count" && (
+              <div
+                key={millionSubscriberCount}
+                className="animate-[millionNumber_0.7s_cubic-bezier(0.17,0.89,0.32,1.28)]"
+              >
+                <div className="text-xs font-bold tracking-[0.45em] text-pink-200/70 sm:text-sm">
+                  YOUTUBE SUBSCRIBERS
+                </div>
+
+                <div className="mt-5 text-6xl font-black tracking-tight drop-shadow-[0_0_30px_rgba(255,182,213,0.45)] sm:text-8xl md:text-9xl">
+                  {millionSubscriberCount.toLocaleString("en-US")}
+                </div>
+
+                <div className="mt-4 text-sm font-medium tracking-[0.3em] text-white/50 sm:text-base">
+                  조금씩 가까워지는 중...
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "impact" && (
+              <div className="animate-[millionImpactText_1.2s_cubic-bezier(0.17,0.89,0.32,1.28)]">
+                <div className="text-7xl sm:text-9xl">🎉</div>
+
+                <div className="mt-4 text-6xl font-black tracking-tight text-pink-100 drop-shadow-[0_0_35px_rgba(255,182,213,1)] sm:text-8xl md:text-9xl">
+                  900,000
+                </div>
+
+                <div className="mt-5 text-2xl font-black tracking-[0.18em] text-white sm:text-4xl">
+                  2026.09.26 90만 달성!
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "message1" && (
+              <div className="w-full max-w-5xl animate-[millionEnding_1.2s_ease-out_forwards]">
+                <p className="font-serif text-2xl font-semibold leading-[1.9] tracking-[0.04em] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.45)] sm:text-4xl md:text-5xl">
+                  잉, 구독자 90만 달성 축하해.
+                </p>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "message2" && (
+              <div className="w-full max-w-5xl animate-[millionEnding_1.2s_ease-out_forwards]">
+                <p className="font-serif text-2xl font-semibold leading-[1.9] tracking-[0.04em] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.45)] sm:text-4xl md:text-5xl">
+                  같이 웃고, 같이 울고,
+                  <br />
+                  기다리다 다시 만나 또 같이 웃었던 시간들.
+                </p>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "message3" && (
+              <div className="w-full max-w-5xl animate-[millionEnding_1.2s_ease-out_forwards]">
+                <p className="font-serif text-2xl font-semibold leading-[1.9] tracking-[0.04em] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.45)] sm:text-4xl md:text-5xl">
+                  그렇게 함께한 시간들이 쌓여
+                  <br />
+                  어느새 90만이 됐네.
+                </p>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "message4" && (
+              <div className="w-full max-w-5xl animate-[millionEnding_1.2s_ease-out_forwards]">
+                <div className="font-serif text-2xl font-semibold leading-[1.9] tracking-[0.04em] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.45)] sm:text-4xl md:text-5xl">
+                  <div>지나고 나서 돌아봤을 때</div>
+                  <div>좋은 기억으로 남을 시간들을</div>
+                  <div>앞으로도 많이 만들어가자.</div>
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "message5" && (
+              <div className="w-full max-w-5xl animate-[millionEnding_1.2s_ease-out_forwards]">
+                <div className="font-serif text-2xl font-semibold leading-[1.9] tracking-[0.04em] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.45)] sm:text-4xl md:text-5xl">
+                  90만 잉친이와 함께,
+                  <br />
+                  앞으로도 재밌게 가보자. 🚀
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "message6" && (
+              <div className="w-full max-w-5xl animate-[millionEnding_1.2s_ease-out_forwards]">
+                <div className="font-serif text-2xl font-semibold leading-[1.9] tracking-[0.04em] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.45)] sm:text-4xl md:text-5xl">
+                  항상 고마워요
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "message7" && (
+              <div className="animate-[millionFinal_1s_ease-out_forwards]">
+                <div className="font-serif text-2xl font-semibold tracking-[0.12em] text-white drop-shadow-[0_0_25px_rgba(255,190,220,0.65)] sm:text-4xl md:text-5xl">
+                  — 잉친이 일동 —
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "platinum1" && (
+              <div className="animate-[platinumText_1s_ease-out_forwards]">
+                <div className="font-serif text-3xl font-semibold tracking-[0.12em] text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.35)] sm:text-5xl md:text-6xl">
+                  그런데..
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "platinum2" && (
+              <div className="animate-[platinumText_1s_ease-out_forwards]">
+                <div className="font-serif text-3xl font-semibold tracking-[0.08em] text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.35)] sm:text-5xl md:text-6xl">
+                  플래티넘은..
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "platinum3" && (
+              <div className="animate-[platinumText_1s_ease-out_forwards]">
+                <div className="font-serif text-3xl font-semibold tracking-[0.04em] text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)] sm:text-5xl md:text-6xl">
+                  찍을 수 있는거..?
+                </div>
+              </div>
+            )}
+
+            {millionCelebrationPhase === "platinumGlitch" && (
+              <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.16),rgba(0,0,0,0.22)_62%,rgba(0,0,0,0.48))] animate-[cinemaBreath_4s_ease-in-out_infinite]" />
+                <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/35 to-transparent" />
+                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_45%,transparent_0%,transparent_48%,rgba(0,0,0,0.5)_100%)]" />
+                <div className="absolute inset-0 animate-[platinumShatterFlash_0.72s_ease-out_forwards] bg-white/90" />
+
+                <div className="absolute inset-0 animate-[platinumShatterShake_0.7s_ease-out_forwards]">
+                  {Array.from({ length: 42 }).map((_, index) => {
+                    const angle = (index * 137.5) % 360;
+                    const distance = 480 + ((index * 97) % 720);
+                    const rotate = -220 + ((index * 53) % 440);
+                    const size = 55 + ((index * 29) % 150);
+
+                    return (
+                      <span
+                        key={index}
+                        className="absolute left-1/2 top-1/2 origin-center border border-white/95 bg-white/80 shadow-[0_0_22px_5px_rgba(255,255,255,0.55)] animate-[platinumShatterPiece_0.82s_cubic-bezier(.12,.72,.2,1)_forwards]"
+                        style={{
+                          width: `${size}px`,
+                          height: `${size * 0.68}px`,
+                          clipPath:
+                            index % 4 === 0
+                              ? "polygon(0 8%, 78% 0, 100% 72%, 24% 100%)"
+                              : index % 4 === 1
+                              ? "polygon(12% 0, 100% 22%, 82% 100%, 0 70%)"
+                              : index % 4 === 2
+                              ? "polygon(0 20%, 72% 0, 100% 82%, 25% 100%)"
+                              : "polygon(18% 0, 100% 12%, 76% 100%, 0 78%)",
+                          "--shatter-x": `${Math.cos((angle * Math.PI) / 180) * distance}px`,
+                          "--shatter-y": `${Math.sin((angle * Math.PI) / 180) * distance}px`,
+                          "--shatter-r": `${rotate}deg`,
+                          animationDelay: `${(index % 7) * 0.018}s`,
+                        } as React.CSSProperties}
+                      />
+                    );
+                  })}
+                </div>
+
+                <div className="absolute inset-0 animate-[platinumShatterShake_0.7s_ease-out_forwards]">
+                  <div className="absolute inset-0 border-[14px] border-white/75 animate-[platinumShatterFlash_0.72s_ease-out_forwards]" />
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
+
       {showPatchNotice && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 px-5 backdrop-blur-sm">
           <div
@@ -2031,6 +2405,9 @@ export default function Home() {
       </div>
 
       <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
+
+        .font-serif { font-family: 'Noto Serif KR', Georgia, serif; }
         @keyframes streakPop {
           0% {
             opacity: 0;
@@ -2198,6 +2575,277 @@ export default function Home() {
           }
         }
 
+
+        @keyframes fireworkCore {
+          0% { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
+          18% { opacity: 1; transform: translate(-50%, -50%) scale(1.8); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(5); }
+        }
+
+        @keyframes fireworkParticle {
+          0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0) scale(0.2); }
+          8% { opacity: 1; }
+          72% { opacity: 1; }
+          100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--distance)) scale(0.05); }
+        }
+
+        @keyframes confettiFall {
+          0% { opacity: 0; transform: translate3d(0, -5vh, 0) rotate(0deg); }
+          10% { opacity: 1; }
+          100% { opacity: 0; transform: translate3d(var(--drift), 115vh, 0) rotate(var(--spin)); }
+        }
+
+        @keyframes millionNumber {
+          0% {
+            opacity: 0;
+            transform: scale(0.82);
+            filter: blur(8px);
+          }
+
+          55% {
+            opacity: 1;
+            transform: scale(1.08);
+            filter: blur(0);
+          }
+
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes millionFlash {
+          0% {
+            opacity: 0;
+          }
+
+          15% {
+            opacity: 1;
+          }
+
+          100% {
+            opacity: 0;
+          }
+        }
+
+        @keyframes millionCore {
+          0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.05);
+          }
+
+          12% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.5);
+          }
+
+          28% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(5);
+          }
+
+          100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(16);
+          }
+        }
+
+        @keyframes millionShake {
+          0%, 100% { transform: translate(0, 0); }
+          8% { transform: translate(-14px, 8px); }
+          16% { transform: translate(13px, -9px); }
+          24% { transform: translate(-10px, -7px); }
+          32% { transform: translate(11px, 8px); }
+          42% { transform: translate(-7px, 4px); }
+          55% { transform: translate(6px, -3px); }
+        }
+
+        @keyframes millionRing {
+          0% {
+            opacity: 0.95;
+            transform: translate(-50%, -50%) scale(0.1);
+          }
+
+          100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(1.35);
+          }
+        }
+
+        @keyframes millionParticle {
+          0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0) scale(0.15);
+          }
+
+          7% {
+            opacity: 1;
+          }
+
+          70% {
+            opacity: 1;
+          }
+
+          100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--distance)) rotate(720deg) scale(0.4);
+          }
+        }
+
+        @keyframes millionSpark {
+          0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0) scaleX(0.3);
+          }
+
+          8% {
+            opacity: 1;
+          }
+
+          100% {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--distance)) scaleX(1.2);
+          }
+        }
+
+        @keyframes millionImpactText {
+          0% {
+            opacity: 0;
+            transform: scale(0.35);
+            filter: blur(12px);
+          }
+
+          55% {
+            opacity: 1;
+            transform: scale(1.12);
+            filter: blur(0);
+          }
+
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes millionEnding {
+          0% {
+            opacity: 0;
+            transform: translateY(18px);
+            filter: blur(7px);
+          }
+
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
+        }
+
+        @keyframes millionFinal {
+          0% {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+
+          70% {
+            opacity: 1;
+            transform: scale(1.06);
+          }
+
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes platinumText {
+          0% {
+            opacity: 0;
+            transform: translateY(18px) scale(0.96);
+            filter: blur(6px);
+          }
+
+          35% {
+            opacity: 1;
+            transform: translateY(0) scale(1.02);
+            filter: blur(0);
+          }
+
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+          }
+        }
+
+        @keyframes celebrationGlow {
+          0%, 100% { opacity: 0.84; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.045); }
+        }
+
+        @keyframes celebrationShimmer {
+          0% { transform: translate3d(-20px, -10px, 0); }
+          50% { transform: translate3d(25px, 18px, 0); }
+          100% { transform: translate3d(-20px, -10px, 0); }
+        }
+
+        @keyframes cinemaTextIn {
+          0% {
+            opacity: 0;
+            transform: translateY(12px) scale(0.985);
+            filter: blur(5px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+          }
+        }
+
+        @keyframes platinumShatterFlash {
+          0% { opacity: 0; }
+          8% { opacity: 1; }
+          22% { opacity: 0.92; }
+          45% { opacity: 0.2; }
+          100% { opacity: 0; }
+        }
+
+        @keyframes platinumShatterShake {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          10% { transform: translate(-16px, 10px) scale(1.018); }
+          20% { transform: translate(18px, -12px) scale(0.99); }
+          32% { transform: translate(-14px, -9px) scale(1.014); }
+          46% { transform: translate(11px, 10px) scale(0.996); }
+          62% { transform: translate(-7px, 5px) scale(1.005); }
+          78% { transform: translate(4px, -3px) scale(1); }
+        }
+
+        @keyframes platinumShatterPiece {
+          0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(0deg) scale(0.25);
+          }
+          6% {
+            opacity: 1;
+            transform: translate(-50%, -50%) rotate(0deg) scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform:
+              translate(
+                calc(-50% + var(--shatter-x)),
+                calc(-50% + var(--shatter-y))
+              )
+              rotate(var(--shatter-r))
+              scale(0.7);
+          }
+        }
+          12% { opacity: 1; }
+          100% {
+            opacity: 0;
+            transform: translate(var(--shard-x), var(--shard-y)) rotate(var(--shard-r)) scaleX(1.4);
+          }
+        }
 
         .scrollbar-none {
           scrollbar-width: none;
