@@ -426,9 +426,9 @@ export default function Home() {
 
       setMillionSubscriberCount(900000);
 
-      if (elapsed < 6000) {
+      if (elapsed < 9000) {
         setMillionCelebrationPhase("impact");
-      } else if (elapsed < 10000) {
+      } else if (elapsed < 13000) {
         setMillionCelebrationPhase("message1");
       } else if (elapsed < 17000) {
         setMillionCelebrationPhase("message2");
