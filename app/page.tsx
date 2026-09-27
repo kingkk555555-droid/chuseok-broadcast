@@ -215,93 +215,22 @@ const questions: Question[] = questionTexts.map(
   })
 );
 
-function SongpyeonIcon({
-  className = "",
-}: {
-  className?: string;
-}) {
+function SongpyeonIcon({ className = "" }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 120 90"
+      viewBox="0 0 80 56"
       className={className}
-      aria-label="송편"
-      role="img"
+      aria-hidden="true"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        <linearGradient
-          id="songpyeonPink"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="1"
-        >
-          <stop offset="0%" stopColor="#fff5f0" />
-          <stop offset="100%" stopColor="#f7c5c0" />
-        </linearGradient>
-
-        <linearGradient
-          id="songpyeonGreen"
-          x1="0"
-          y1="0"
-          x2="1"
-          y2="1"
-        >
-          <stop offset="0%" stopColor="#f4ffe9" />
-          <stop offset="100%" stopColor="#b8dca8" />
-        </linearGradient>
-      </defs>
-
-      <g transform="translate(8 8)">
-        <path
-          d="M13 48C17 27 32 15 52 15C72 15 88 27 92 48C78 59 27 59 13 48Z"
-          fill="url(#songpyeonPink)"
-          stroke="#fff8f5"
-          strokeWidth="3"
-        />
-
-        <path
-          d="M13 48C29 57 76 58 92 48"
-          fill="none"
-          stroke="#dfaaa4"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-
-        <ellipse
-          cx="52"
-          cy="29"
-          rx="14"
-          ry="5"
-          fill="#ffffff"
-          opacity="0.4"
-        />
-      </g>
-
-      <g transform="translate(38 23) scale(.7)">
-        <path
-          d="M13 48C17 27 32 15 52 15C72 15 88 27 92 48C78 59 27 59 13 48Z"
-          fill="url(#songpyeonGreen)"
-          stroke="#f3ffe9"
-          strokeWidth="3"
-        />
-
-        <path
-          d="M13 48C29 57 76 58 92 48"
-          fill="none"
-          stroke="#98bf8b"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-
-        <ellipse
-          cx="52"
-          cy="29"
-          rx="14"
-          ry="5"
-          fill="#ffffff"
-          opacity="0.4"
-        />
-      </g>
+      <path
+        d="M40 6L44 17L56 20L46 27L48 39L40 32L32 39L34 27L24 20L36 17L40 6Z"
+        fill="currentColor"
+        opacity="0.82"
+      />
+      <circle cx="62" cy="12" r="4" fill="currentColor" opacity="0.5" />
+      <circle cx="17" cy="39" r="3" fill="currentColor" opacity="0.45" />
     </svg>
   );
 }
@@ -497,9 +426,9 @@ export default function Home() {
 
       setMillionSubscriberCount(900000);
 
-      if (elapsed < 9000) {
+      if (elapsed < 6000) {
         setMillionCelebrationPhase("impact");
-      } else if (elapsed < 13000) {
+      } else if (elapsed < 10000) {
         setMillionCelebrationPhase("message1");
       } else if (elapsed < 17000) {
         setMillionCelebrationPhase("message2");
@@ -918,129 +847,26 @@ export default function Home() {
     }
   };
 
-  const theme =
-    timePeriod === "dawn"
-      ? {
-          page:
-            "bg-[linear-gradient(135deg,#554c72_0%,#8d7891_42%,#d6aa96_100%)]",
-          overlay:
-            "bg-[radial-gradient(circle_at_50%_0%,rgba(255,239,202,0.38),transparent_45%)]",
-          cloud:
-            "bg-[#f1d9d0]/30",
-          cloud2:
-            "bg-[#ead2d5]/25",
-          panel:
-            "bg-[#5b526f]/35",
-          card:
-            "bg-[#4b4562]/45",
-          inner:
-            "bg-[#343149]/65",
-          text:
-            "text-[#fff8ef]",
-          muted:
-            "text-[#fff2e5]/60",
-          soft:
-            "text-[#ffe9d9]/70",
-          accent:
-            "text-[#ffe0c9]",
-          border:
-            "border-[#ffe9d9]/20",
-          button:
-            "from-[#ffd6b8] to-[#f6b9ad] text-[#3b2630] shadow-[#ffd6b8]/20",
-          moon: "🌅",
-        }
-      : timePeriod === "day"
-        ? {
-            page:
-              "bg-[linear-gradient(135deg,#a8d8e8_0%,#d8e9d1_48%,#f5d9ad_100%)]",
-            overlay:
-              "bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,225,0.55),transparent_46%)]",
-            cloud:
-              "bg-white/45",
-            cloud2:
-              "bg-white/35",
-            panel:
-              "bg-white/25",
-            card:
-              "bg-white/30",
-            inner:
-              "bg-[#456273]/35",
-            text:
-              "text-[#25303a]",
-            muted:
-              "text-[#314552]/65",
-            soft:
-              "text-[#455c68]/75",
-            accent:
-              "text-[#8a5260]",
-            border:
-              "border-white/40",
-            button:
-              "from-[#f7c7a6] to-[#f4aeb3] text-[#3c2830] shadow-[#f3b6aa]/20",
-            moon:
-              "☀️",
-          }
-        : timePeriod === "evening"
-          ? {
-              page:
-                "bg-[linear-gradient(135deg,#705c87_0%,#a16e83_45%,#e4a47d_100%)]",
-              overlay:
-                "bg-[radial-gradient(circle_at_70%_5%,rgba(255,220,170,0.38),transparent_42%)]",
-              cloud:
-                "bg-[#443b60]/45",
-              cloud2:
-                "bg-[#503c59]/40",
-              panel:
-                "bg-[#403751]/35",
-              card:
-                "bg-[#3f354d]/45",
-              inner:
-                "bg-[#29253b]/70",
-              text:
-                "text-[#fff5ed]",
-              muted:
-                "text-[#ffece0]/60",
-              soft:
-                "text-[#ffe4d2]/75",
-              accent:
-                "text-[#ffd3c0]",
-              border:
-                "border-[#ffe5d8]/20",
-              button:
-                "from-[#f6c3ad] to-[#eaa5a7] text-[#3b2730] shadow-[#f2b2a8]/20",
-              moon:
-                "🌇",
-            }
-          : {
-              page:
-                "bg-[#11152b]",
-              overlay:
-                "bg-[radial-gradient(circle_at_50%_0%,rgba(255,242,189,0.12),transparent_42%)]",
-              cloud:
-                "bg-[#252b50]/80",
-              cloud2:
-                "bg-[#252b50]/70",
-              panel:
-                "bg-[#191d38]/90",
-              card:
-                "bg-white/[0.055]",
-              inner:
-                "bg-[#0c1022]/80",
-              text:
-                "text-white",
-              muted:
-                "text-white/55",
-              soft:
-                "text-white/75",
-              accent:
-                "text-pink-200",
-              border:
-                "border-white/10",
-              button:
-                "from-pink-300 to-rose-200 text-[#25162d] shadow-pink-300/10",
-              moon:
-                "🌕",
-            };
+  const theme = {
+    page:
+      "bg-[linear-gradient(135deg,#b9e8ff_0%,#d7edff_38%,#e6e0ff_72%,#f7f9ff_100%)]",
+    overlay:
+      "bg-[radial-gradient(circle_at_18%_8%,rgba(255,255,255,0.72),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(194,224,255,0.48),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(219,210,255,0.42),transparent_42%)]",
+    cloud: "bg-white/35",
+    cloud2: "bg-[#cde8ff]/35",
+    panel: "bg-white/42",
+    card: "bg-white/52",
+    inner: "bg-white/58",
+    text: "text-[#24344b]",
+    muted: "text-[#50647d]/70",
+    soft: "text-[#435b75]/80",
+    accent: "text-[#438fc4]",
+    border: "border-white/65",
+    button:
+      "from-[#8ed6ff] via-[#a9dfff] to-[#c8bfff] text-[#20344b] shadow-[#7ccfff]/25",
+    moon: "☁️",
+  };
+
   const streakTier =
     streakCelebration === 10
       ? "legend"
@@ -1558,60 +1384,18 @@ export default function Home() {
         </div>
       )}
 
-      <div
-        className={`pointer-events-none fixed inset-0 overflow-hidden transition-all duration-[1800ms] ${theme.overlay}`}
-      >
-        {timePeriod === "night" ? (
-          <>
-            <div className="absolute left-[8%] top-[12%] text-xs text-white/50">
-              ✦
-            </div>
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-white/30 blur-3xl" />
+        <div className="absolute -right-24 top-24 h-80 w-80 rounded-full bg-[#9ddcff]/30 blur-3xl" />
+        <div className="absolute left-[34%] top-[-120px] h-72 w-72 rounded-full bg-[#c9b9ff]/25 blur-3xl" />
 
-            <div className="absolute left-[20%] top-[25%] text-sm text-white/40">
-              ✦
-            </div>
+        <div className="absolute left-[7%] top-[16%] text-2xl text-white/60">✦</div>
+        <div className="absolute left-[24%] top-[31%] text-sm text-white/55">✧</div>
+        <div className="absolute right-[18%] top-[15%] text-xl text-white/65">✦</div>
+        <div className="absolute right-[8%] top-[42%] text-sm text-white/50">✧</div>
 
-            <div className="absolute right-[17%] top-[18%] text-xs text-white/50">
-              ✦
-            </div>
-
-            <div className="absolute right-[8%] top-[38%] text-sm text-white/40">
-              ✦
-            </div>
-
-            <div className="absolute left-[5%] top-[55%] text-xs text-white/30">
-              ✦
-            </div>
-
-            <div className="absolute left-1/2 top-[-180px] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#fff2bd]/10 blur-3xl" />
-          </>
-        ) : (
-          <>
-            <div className="absolute left-[10%] top-[10%] text-2xl opacity-40">
-              ☁️
-            </div>
-
-            <div className="absolute right-[15%] top-[18%] text-3xl opacity-35">
-              ☁️
-            </div>
-
-            <div className="absolute left-[42%] top-[7%] text-xl opacity-30">
-              ✨
-            </div>
-          </>
-        )}
-
-        <div
-          className={`absolute -bottom-12 -left-10 h-32 w-96 rounded-full blur-sm transition-colors duration-[1800ms] ${theme.cloud}`}
-        />
-
-        <div
-          className={`absolute -bottom-16 right-[-80px] h-40 w-[500px] rounded-full blur-sm transition-colors duration-[1800ms] ${theme.cloud2}`}
-        />
-
-        <div className="absolute right-[5%] top-[8%] hidden text-7xl opacity-20 sm:block">
-          {theme.moon}
-        </div>
+        <div className="absolute -bottom-16 -left-10 h-40 w-[420px] rounded-full bg-white/35 blur-2xl" />
+        <div className="absolute -bottom-20 right-[-80px] h-44 w-[520px] rounded-full bg-[#b8dcff]/30 blur-2xl" />
       </div>
 
       <div className="relative mx-auto min-h-screen max-w-6xl px-5 py-8 sm:px-8">
@@ -1620,7 +1404,7 @@ export default function Home() {
             <div
               className={`mb-2 text-sm font-medium tracking-[0.25em] transition-colors duration-[1800ms] ${theme.accent}`}
             >
-              2026 CHUSEOK SPECIAL
+              RANDOM TALK SPACE
             </div>
 
             <h1 className="text-3xl font-black tracking-tight sm:text-5xl">
@@ -1635,7 +1419,7 @@ export default function Home() {
             <p
               className={`mt-3 text-sm transition-colors duration-[1800ms] sm:text-base ${theme.muted}`}
             >
-              방송하다 할 말이 없을 때, 송편 하나 뽑아보세요 🌕
+              방송하다 할 말이 없을 때, 질문 하나 뽑아보세요 🎙️
             </p>
 
             <section
@@ -1712,12 +1496,12 @@ export default function Home() {
               className={`mt-1 text-xs transition-colors duration-[1800ms] ${theme.muted}`}
             >
               {timePeriod === "day"
-                ? "따뜻한 한가위 낮"
+                ? "맑은 방송 시간"
                 : timePeriod === "evening"
-                  ? "노을빛 한가위"
+                  ? "편안한 방송 시간"
                   : timePeriod === "dawn"
-                    ? "한가위 아침"
-                    : "즐거운 한가위"}
+                    ? "산뜻한 방송 시간"
+                    : "즐거운 방송 시간"}
             </div>
 
             <div
@@ -1838,17 +1622,13 @@ export default function Home() {
 
               <div
                 className={`pointer-events-none absolute inset-x-0 top-0 z-20 h-24 bg-gradient-to-b from-transparent to-transparent transition-all duration-[1800ms] ${
-                  timePeriod === "night"
-                    ? "from-[#0c1022]"
-                    : "from-black/10"
+                  "from-white/10"
                 }`}
               />
 
               <div
                 className={`pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-gradient-to-t from-transparent to-transparent transition-all duration-[1800ms] ${
-                  timePeriod === "night"
-                    ? "from-[#0c1022]"
-                    : "from-black/10"
+                  "from-white/10"
                 }`}
               />
 
@@ -1879,7 +1659,7 @@ export default function Home() {
                     <SongpyeonIcon className="mx-auto mb-4 h-24 w-32 drop-shadow-[0_8px_18px_rgba(255,210,210,0.16)]" />
 
                     <p className="text-xl font-bold sm:text-2xl">
-                      송편을 하나 뽑아볼까요?
+                      질문 하나 뽑아볼까요?
                     </p>
 
                     <p
@@ -1899,7 +1679,7 @@ export default function Home() {
               >
                 <span className="relative z-10 flex items-center gap-2">
                   <SongpyeonIcon className="h-7 w-8" />
-                  송편 하나 뽑기
+                  질문 하나 뽑기
                 </span>
 
                 <span className="absolute inset-0 -translate-x-full bg-white/30 transition-transform duration-700 group-hover:translate-x-full" />
@@ -2399,7 +2179,7 @@ export default function Home() {
           <p
             className={`text-xs transition-colors duration-[1800ms] ${theme.muted}`}
           >
-            우정잉 랜덤토크 질문 뽑기 · 즐거운 한가위 보내세요
+            우정잉 랜덤토크 질문 뽑기 · 즐거운 방송 시간 보내세요
           </p>
         </footer>
       </div>
