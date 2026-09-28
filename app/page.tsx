@@ -198,6 +198,104 @@ const schedules = [
   { date: "09.30", title: "휴방" },
 ];
 
+
+type Anniversary = {
+  icon: string;
+  month: number;
+  day: number;
+  getTitle: (year: number) => string;
+  elapsedDays?: boolean;
+  originalDate?: { year: number; month: number; day: number };
+};
+
+function getUpcomingAnniversaries(now: Date): Array<{
+  icon: string;
+  title: string;
+  date: Date;
+  dDay: number;
+  elapsedDays?: number;
+}> {
+  const today = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  const events: Anniversary[] = [
+    {
+      icon: "🎂",
+      month: 12,
+      day: 9,
+      getTitle: () => "우정잉 생일",
+    },
+    {
+      icon: "📺",
+      month: 10,
+      day: 16,
+      getTitle: (year) => `방송 ${year - 2017}주년`,
+    },
+    {
+      icon: "🎙️",
+      month: 10,
+      day: 16,
+      getTitle: () => "방송 데뷔",
+      elapsedDays: true,
+      originalDate: { year: 2017, month: 10, day: 16 },
+    },
+  ];
+
+  return events
+    .map((event) => {
+      const originalDate = event.originalDate
+        ? new Date(
+            event.originalDate.year,
+            event.originalDate.month - 1,
+            event.originalDate.day
+          )
+        : null;
+
+      if (event.elapsedDays && originalDate) {
+        const elapsedDays = Math.floor(
+          (today.getTime() - originalDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        );
+
+        return {
+          icon: event.icon,
+          title: event.getTitle(now.getFullYear()),
+          date: originalDate,
+          dDay: 0,
+          elapsedDays,
+        };
+      }
+
+      let year = now.getFullYear();
+      let date = new Date(year, event.month - 1, event.day);
+
+      if (date < today) {
+        year += 1;
+        date = new Date(year, event.month - 1, event.day);
+      }
+
+      const diffDays = Math.ceil(
+        (date.getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+
+      return {
+        icon: event.icon,
+        title: event.getTitle(year),
+        date,
+        dDay: diffDays,
+      };
+    })
+    .sort((a, b) => {
+      if (a.elapsedDays !== undefined) return 1;
+      if (b.elapsedDays !== undefined) return -1;
+      return a.date.getTime() - b.date.getTime();
+    });
+}
+
 const questions: Question[] = questionTexts.map(
   (question, index) => ({
     id: index + 1,
@@ -849,22 +947,22 @@ export default function Home() {
 
   const theme = {
     page:
-      "bg-[linear-gradient(135deg,#ffd6b8_0%,#f4c5c5_28%,#d8c8df_58%,#9aa9c9_100%)]",
+      "bg-[linear-gradient(135deg,#b9e8ff_0%,#d7edff_38%,#e6e0ff_72%,#f7f9ff_100%)]",
     overlay:
-      "bg-[radial-gradient(circle_at_50%_8%,rgba(255,224,190,0.48),transparent_30%),radial-gradient(circle_at_15%_45%,rgba(255,188,174,0.18),transparent_38%),radial-gradient(circle_at_85%_70%,rgba(125,143,190,0.22),transparent_42%)]",
-    cloud: "bg-white/28",
-    cloud2: "bg-[#f2c8c4]/22",
+      "bg-[radial-gradient(circle_at_18%_8%,rgba(255,255,255,0.72),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(194,224,255,0.48),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(219,210,255,0.42),transparent_42%)]",
+    cloud: "bg-white/35",
+    cloud2: "bg-[#cde8ff]/35",
     panel: "bg-white/42",
     card: "bg-white/52",
     inner: "bg-white/58",
-    text: "text-[#29354d]",
-    muted: "text-[#4e5b70]/75",
-    soft: "text-[#46556d]/82",
-    accent: "text-[#b56f73]",
-    border: "border-white/62",
+    text: "text-[#24344b]",
+    muted: "text-[#50647d]/70",
+    soft: "text-[#435b75]/80",
+    accent: "text-[#438fc4]",
+    border: "border-white/65",
     button:
-      "from-[#f3b89f] via-[#e8b7c4] to-[#c5b9dc] text-[#29354d] shadow-[#e7a99f]/25",
-    moon: "🌇",
+      "from-[#8ed6ff] via-[#a9dfff] to-[#c8bfff] text-[#20344b] shadow-[#7ccfff]/25",
+    moon: "☁️",
   };
 
   const streakTier =
@@ -879,11 +977,55 @@ export default function Home() {
       : "basic";
 
 
+  const upcomingAnniversaries = getUpcomingAnniversaries(new Date());
+
   return (
     <main
-      className={`min-h-screen overflow-hidden ${theme.page} ${theme.text} transition-colors duration-[1800ms]`}
+      className={`relative min-h-screen overflow-hidden ${theme.text} transition-colors duration-[1800ms]`}
+      style={{
+        background:
+          "linear-gradient(135deg, #fff0f7 0%, #ffe8f1 18%, #eee7ff 40%, #e5f5ff 62%, #e8fff5 80%, #fff8df 100%)",
+      }}
     >
-      <div className="sunset-atmosphere" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div
+          className="absolute -left-[12%] -top-[10%] h-[58vw] w-[58vw] rounded-full blur-[70px]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(255,79,145,0.38) 0%, rgba(255,171,207,0.20) 42%, transparent 72%)",
+          }}
+        />
+        <div
+          className="absolute -right-[10%] top-[2%] h-[55vw] w-[55vw] rounded-full blur-[75px]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(77,190,255,0.36) 0%, rgba(153,225,255,0.18) 42%, transparent 72%)",
+          }}
+        />
+        <div
+          className="absolute left-[28%] top-[24%] h-[48vw] w-[48vw] rounded-full blur-[85px]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(172,105,255,0.28) 0%, rgba(216,176,255,0.16) 42%, transparent 72%)",
+          }}
+        />
+        <div
+          className="absolute -bottom-[18%] left-[2%] h-[52vw] w-[52vw] rounded-full blur-[80px]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(52,221,164,0.25) 0%, rgba(169,255,219,0.14) 44%, transparent 72%)",
+          }}
+        />
+        <div
+          className="absolute -bottom-[20%] -right-[5%] h-[48vw] w-[48vw] rounded-full blur-[80px]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(255,205,72,0.24) 0%, rgba(255,232,151,0.14) 44%, transparent 72%)",
+          }}
+        />
+        <div className="absolute inset-0 bg-white/10" />
+      </div>
+
       {show90MillionCelebration && (
         <div className="fixed inset-0 z-[200] overflow-hidden bg-[#050509] text-white">
           <button
@@ -1408,10 +1550,18 @@ export default function Home() {
               RANDOM TALK SPACE
             </div>
 
-            <h1 className="text-3xl font-black tracking-tight sm:text-5xl">
-              😺 우정잉
+            <h1
+              className="text-3xl font-black tracking-[-0.055em] sm:text-5xl"
+              style={{
+                fontFamily:
+                  '"Arial Black", "Trebuchet MS", "Noto Sans KR", sans-serif',
+              }}
+            >
+              <span className="drop-shadow-[0_4px_18px_rgba(255,255,255,0.75)]">
+                😺 우정잉
+              </span>
               <span
-                className={`ml-2 transition-colors duration-[1800ms] ${theme.accent}`}
+                className="ml-2 inline-block bg-[linear-gradient(90deg,#ff2f92_0%,#ff4fba_22%,#8b5cf6_52%,#4f7cff_75%,#13cfff_100%)] bg-clip-text font-black text-transparent drop-shadow-[0_5px_24px_rgba(139,92,246,0.35)]"
               >
                 랜덤토크 질문 뽑기
               </span>
@@ -1477,7 +1627,67 @@ export default function Home() {
                   ))}
                 </div>
               )}
-            </section>
+            
+              <div className="mt-5 border-t border-white/10 pt-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">✨</span>
+                      <span className="text-sm font-black">다가오는 기념일</span>
+                    </div>
+                    <div
+                      className={`mt-1 text-[10px] font-medium tracking-[0.08em] transition-colors duration-[1800ms] ${theme.accent}`}
+                    >
+                      오늘 기준 자동 계산
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {upcomingAnniversaries.map((anniversary) => {
+                    const dateLabel =
+                      `${anniversary.date.getFullYear()}.` +
+                      `${String(anniversary.date.getMonth() + 1).padStart(2, "0")}.` +
+                      `${String(anniversary.date.getDate()).padStart(2, "0")}`;
+
+                    const dDayLabel =
+                      anniversary.elapsedDays !== undefined
+                        ? `방송 ${anniversary.elapsedDays.toLocaleString()}일`
+                        : anniversary.dDay === 0
+                          ? "D-DAY"
+                          : `D-${anniversary.dDay}`;
+
+                    return (
+                      <div
+                        key={`${anniversary.title}-${dateLabel}`}
+                        className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
+                      >
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.10] text-base">
+                          {anniversary.icon}
+                        </span>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-xs font-black">
+                            {anniversary.title}
+                          </div>
+                          <div
+                            className={`mt-0.5 text-[10px] font-medium transition-colors duration-[1800ms] ${theme.muted}`}
+                          >
+                            {dateLabel}
+                          </div>
+                        </div>
+
+                        <span
+                          className={`shrink-0 rounded-full border border-white/10 bg-white/[0.10] px-2 py-1 text-[10px] font-black transition-colors duration-[1800ms] ${theme.accent}`}
+                        >
+                          {dDayLabel}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+</section>
           </div>
 
           <div className="hidden w-[300px] shrink-0 text-right sm:block">
@@ -1562,7 +1772,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-          </div>
+</div>
         </header>
 
         <section className="mb-6">
@@ -2626,25 +2836,6 @@ export default function Home() {
             opacity: 0;
             transform: translate(var(--shard-x), var(--shard-y)) rotate(var(--shard-r)) scaleX(1.4);
           }
-        }
-
-        .sunset-atmosphere {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 0;
-          background:
-            radial-gradient(
-              circle at 50% 12%,
-              rgba(255, 218, 184, 0.22) 0%,
-              rgba(255, 190, 180, 0.10) 24%,
-              rgba(255, 190, 180, 0) 48%
-            ),
-            radial-gradient(
-              circle at 24% 58%,
-              rgba(235, 178, 190, 0.10) 0%,
-              rgba(235, 178, 190, 0) 40%
-            );
         }
 
         .scrollbar-none {
