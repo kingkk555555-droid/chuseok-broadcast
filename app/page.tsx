@@ -849,22 +849,22 @@ export default function Home() {
 
   const theme = {
     page:
-      "bg-[linear-gradient(135deg,#b9e8ff_0%,#d7edff_38%,#e6e0ff_72%,#f7f9ff_100%)]",
+      "bg-[linear-gradient(135deg,#ffd6b8_0%,#f4c5c5_28%,#d8c8df_58%,#9aa9c9_100%)]",
     overlay:
-      "bg-[radial-gradient(circle_at_18%_8%,rgba(255,255,255,0.72),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(194,224,255,0.48),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(219,210,255,0.42),transparent_42%)]",
-    cloud: "bg-white/35",
-    cloud2: "bg-[#cde8ff]/35",
+      "bg-[radial-gradient(circle_at_50%_8%,rgba(255,224,190,0.48),transparent_30%),radial-gradient(circle_at_15%_45%,rgba(255,188,174,0.18),transparent_38%),radial-gradient(circle_at_85%_70%,rgba(125,143,190,0.22),transparent_42%)]",
+    cloud: "bg-white/28",
+    cloud2: "bg-[#f2c8c4]/22",
     panel: "bg-white/42",
     card: "bg-white/52",
     inner: "bg-white/58",
-    text: "text-[#24344b]",
-    muted: "text-[#50647d]/70",
-    soft: "text-[#435b75]/80",
-    accent: "text-[#438fc4]",
-    border: "border-white/65",
+    text: "text-[#29354d]",
+    muted: "text-[#4e5b70]/75",
+    soft: "text-[#46556d]/82",
+    accent: "text-[#b56f73]",
+    border: "border-white/62",
     button:
-      "from-[#8ed6ff] via-[#a9dfff] to-[#c8bfff] text-[#20344b] shadow-[#7ccfff]/25",
-    moon: "☁️",
+      "from-[#f3b89f] via-[#e8b7c4] to-[#c5b9dc] text-[#29354d] shadow-[#e7a99f]/25",
+    moon: "🌇",
   };
 
   const streakTier =
@@ -883,6 +883,7 @@ export default function Home() {
     <main
       className={`min-h-screen overflow-hidden ${theme.page} ${theme.text} transition-colors duration-[1800ms]`}
     >
+      <div className="sunset-atmosphere" aria-hidden="true" />
       {show90MillionCelebration && (
         <div className="fixed inset-0 z-[200] overflow-hidden bg-[#050509] text-white">
           <button
@@ -2625,6 +2626,25 @@ export default function Home() {
             opacity: 0;
             transform: translate(var(--shard-x), var(--shard-y)) rotate(var(--shard-r)) scaleX(1.4);
           }
+        }
+
+        .sunset-atmosphere {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          background:
+            radial-gradient(
+              circle at 50% 12%,
+              rgba(255, 218, 184, 0.22) 0%,
+              rgba(255, 190, 180, 0.10) 24%,
+              rgba(255, 190, 180, 0) 48%
+            ),
+            radial-gradient(
+              circle at 24% 58%,
+              rgba(235, 178, 190, 0.10) 0%,
+              rgba(235, 178, 190, 0) 40%
+            );
         }
 
         .scrollbar-none {
