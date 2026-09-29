@@ -187,16 +187,7 @@ const questionTexts = [
 
 ];
 
-const schedules = [
-  { date: "09.23", title: "휴방" },
-  { date: "09.24", title: "추석연휴 기념방송 · 종겜동 합방" },
-  { date: "09.25", title: "추석연휴 기념방송" },
-  { date: "09.26", title: "추석연휴 기념방송 · 제이팝 라이브 월드컵" },
-  { date: "09.27", title: "<템빨> 1~2화 같이보기" },
-  { date: "09.28", title: "휴방" },
-  { date: "09.29", title: "부동산 토크 초대석" },
-  { date: "09.30", title: "휴방" },
-];
+
 
 
 type Anniversary = {
@@ -375,9 +366,6 @@ export default function Home() {
     useState<Question[]>([]);
 
   const [currentTime, setCurrentTime] =
-    useState("");
-
-  const [currentDate, setCurrentDate] =
     useState("");
 
   const [timePeriod, setTimePeriod] = useState<
@@ -614,13 +602,6 @@ export default function Home() {
           minute: "2-digit",
           second: "2-digit",
         })
-      );
-
-      setCurrentDate(
-        `${String(now.getMonth() + 1).padStart(
-          2,
-          "0"
-        )}.${String(now.getDate()).padStart(2, "0")}`
       );
 
       if (hour >= 6 && hour < 9) {
@@ -1628,65 +1609,6 @@ export default function Home() {
                 </div>
               )}
             
-              <div className="mt-5 border-t border-white/10 pt-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">✨</span>
-                      <span className="text-sm font-black">다가오는 기념일</span>
-                    </div>
-                    <div
-                      className={`mt-1 text-[10px] font-medium tracking-[0.08em] transition-colors duration-[1800ms] ${theme.accent}`}
-                    >
-                      오늘 기준 자동 계산
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid gap-2 sm:grid-cols-3">
-                  {upcomingAnniversaries.map((anniversary) => {
-                    const dateLabel =
-                      `${anniversary.date.getFullYear()}.` +
-                      `${String(anniversary.date.getMonth() + 1).padStart(2, "0")}.` +
-                      `${String(anniversary.date.getDate()).padStart(2, "0")}`;
-
-                    const dDayLabel =
-                      anniversary.elapsedDays !== undefined
-                        ? `방송 ${anniversary.elapsedDays.toLocaleString()}일`
-                        : anniversary.dDay === 0
-                          ? "D-DAY"
-                          : `D-${anniversary.dDay}`;
-
-                    return (
-                      <div
-                        key={`${anniversary.title}-${dateLabel}`}
-                        className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 transition-all duration-[1800ms] ${theme.border} ${theme.card}`}
-                      >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.10] text-base">
-                          {anniversary.icon}
-                        </span>
-
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-xs font-black">
-                            {anniversary.title}
-                          </div>
-                          <div
-                            className={`mt-0.5 text-[10px] font-medium transition-colors duration-[1800ms] ${theme.muted}`}
-                          >
-                            {dateLabel}
-                          </div>
-                        </div>
-
-                        <span
-                          className={`shrink-0 rounded-full border border-white/10 bg-white/[0.10] px-2 py-1 text-[10px] font-black transition-colors duration-[1800ms] ${theme.accent}`}
-                        >
-                          {dDayLabel}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
 </section>
           </div>
 
@@ -1726,53 +1648,59 @@ export default function Home() {
             >
               <div className="border-b border-white/10 bg-white/[0.08] px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">
-                    📅
-                  </span>
-
+                  <span className="text-base">✨</span>
                   <span className="text-sm font-black">
-                    방송 일정
+                    다가오는 기념일
                   </span>
-                </div>
-
-                <div
-                  className={`mt-1 text-[10px] font-medium tracking-[0.08em] transition-colors duration-[1800ms] ${theme.accent}`}
-                >
-                  2026.09.23 — 09.30
                 </div>
               </div>
 
               <div className="divide-y divide-white/[0.08]">
-                {schedules.map((schedule) => (
-                  <div
-                    key={schedule.date}
-                    className={`flex items-start gap-3 rounded-xl px-4 py-2.5 transition-all duration-[1800ms] ${
-                      currentDate === schedule.date
-                        ? "bg-gradient-to-r from-pink-400/25 via-purple-400/15 to-transparent ring-1 ring-pink-300/20"
-                        : ""
-                    }`}
-                  >
-                    <span
-                      className={`w-[42px] shrink-0 pt-0.5 text-xs font-black transition-colors duration-[1800ms] ${theme.accent}`}
-                    >
-                      {schedule.date}
-                    </span>
+                {upcomingAnniversaries.map((anniversary) => {
+                  const dateLabel =
+                    `${anniversary.date.getFullYear()}.` +
+                    `${String(anniversary.date.getMonth() + 1).padStart(2, "0")}.` +
+                    `${String(anniversary.date.getDate()).padStart(2, "0")}`;
 
-                    <span
-                      className={`text-xs font-bold leading-relaxed ${
-                        schedule.title ===
-                        "휴방"
-                          ? theme.muted
-                          : theme.soft
-                      }`}
+                  const dDayLabel =
+                    anniversary.elapsedDays !== undefined
+                      ? `방송 ${anniversary.elapsedDays.toLocaleString()}일`
+                      : anniversary.dDay === 0
+                        ? "D-DAY"
+                        : `D-${anniversary.dDay}`;
+
+                  return (
+                    <div
+                      key={`${anniversary.title}-${dateLabel}`}
+                      className="flex items-center gap-3 px-4 py-3"
                     >
-                      {schedule.title}
-                    </span>
-                  </div>
-                ))}
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.10] text-base">
+                        {anniversary.icon}
+                      </span>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-xs font-black">
+                          {anniversary.title}
+                        </div>
+
+                        <div
+                          className={`mt-0.5 text-[10px] font-medium transition-colors duration-[1800ms] ${theme.muted}`}
+                        >
+                          {dateLabel}
+                        </div>
+                      </div>
+
+                      <span
+                        className={`shrink-0 rounded-full border border-white/10 bg-white/[0.10] px-2 py-1 text-[10px] font-black transition-colors duration-[1800ms] ${theme.accent}`}
+                      >
+                        {dDayLabel}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-</div>
+          </div>
         </header>
 
         <section className="mb-6">
